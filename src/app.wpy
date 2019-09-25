@@ -1,0 +1,157 @@
+<style lang="less">
+@import 'base';
+</style>
+
+<script>
+import wepy from 'wepy'
+import 'wepy-async-function'
+import { setStore } from 'wepy-redux'
+import configStore from './store'
+import api, { requestConfig } from '@/apiJs/api.js'
+import util from '@/utils/util.js'
+const store = configStore()
+setStore(store)
+
+export default class extends wepy.app {
+  config = {
+    pages: [
+      'pages/index',
+      'pages/shoppingCar',
+      'pages/proxyCenter',
+      'pages/wxInfo',
+      'pages/login'
+    ],
+    window: {
+      backgroundTextStyle: 'light',
+      navigationBarBackgroundColor: '#78B43A',
+      navigationBarTitleText: 'WeChat',
+      navigationBarTextStyle: 'white'
+    },
+    'subPackages': [
+      {
+        'root': 'pages/index_package/',
+        'pages': [
+          'productList',
+          'goodsDetail',
+          'orderConfirm',
+          'addAddress',
+          'selectAddress',
+          'search'
+        ]
+      },
+      {
+        'root': 'pages/order_package/',
+        'pages': [
+          'orderCenter',
+          'orderDetail'
+        ]
+      },
+      {
+        'root': 'pages/agent_package/',
+        'pages': [
+          'proxyInfo',
+          'proxyInfoModify',
+          'teamTree',
+          'agentDetail',
+          'rebate',
+          'card',
+          'modifyMobile'
+        ]
+      },
+      {
+        'root': 'pages/login_package/',
+        'pages': [
+          'applyAgent',
+          'forgetPass',
+          'agreement'
+        ]
+      }
+    ],
+    'preloadRule': {
+      'pages/index': {
+        'network': 'all',
+        'packages': [
+          'pages/index_package/'
+        ]
+      },
+      'pages/shoppingCar': {
+        'network': 'all',
+        'packages': [
+          'pages/order_package/'
+        ]
+      },
+      'pages/proxyCenter': {
+        'network': 'all',
+        'packages': [
+          'pages/agent_package/'
+        ]
+      }
+
+    },
+    tabBar: {
+      color: '#999999',
+      selectedColor: '#568512',
+      backgroundColor: '#fff',
+      borderStyle: 'white',
+      list: [{
+        pagePath: 'pages/index',
+        selectedIconPath: '/assets/images/tabbar/bar_home_click.png',
+        iconPath: '/assets/images/tabbar/bar_home_default@2x.png',
+        text: '首页'
+      },
+      {
+        pagePath: 'pages/shoppingCar',
+        selectedIconPath: '/assets/images/tabbar/bar_shopping_click@2x.png',
+        iconPath: '/assets/images/tabbar/bar_shopping_default.png',
+        text: '购物车'
+      },
+      {
+        pagePath: 'pages/proxyCenter',
+        selectedIconPath: '/assets/images/tabbar/bar_myself_click@2x.png',
+        iconPath: '/assets/images/tabbar/bar_myself_default.png',
+        text: '代理中心'
+      }
+      ]
+    }
+  }
+
+  globalData = {
+    userInfo: null,
+    code: '',
+    buyGoodsList: [],
+    cartCheck: [],
+    isJudge: false,
+    isAgent: true,
+    isForbit: false, // 是否被禁用
+    customerId: '' // 识别二维码进入时上级身份
+  }
+
+  constructor () {
+    super()
+    this.use('requestfix')
+    this.use('promisify')
+    this.intercept('request', requestConfig)
+    this.intercept('uploadFile', requestConfig)
+    this.$util = util
+  }
+
+  async onLaunch (options) {
+    // 扫描上级名片进入，将上级customerId存于全局，等待授权后进行绑定，成为下级
+    console.log(options)
+    if (options.query.scene) {
+      this.globalData.customerId = options.query.scene
+    }
+  }
+  onShow () {
+    api.judge()
+  }
+
+  goPath (...args) {
+    util.goPath(...args)
+  }
+
+  getContainerHeight (selector) {
+    return util.getContainerHeight(selector)
+  }
+}
+</script>

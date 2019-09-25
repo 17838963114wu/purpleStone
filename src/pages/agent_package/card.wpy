@@ -1,0 +1,231 @@
+<style lang='less'>
+.container {
+    width: 100%;
+    height: 1206rpx;
+    position: relative;
+    color: #222222;
+    font-size: 28rpx;
+    z-index: 2;
+    .image_bg {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        z-index: -1;
+    }
+    .card-box{
+        flex-direction: column;
+        align-items: center;
+        .logo{
+            width: 225rpx;
+            height: 86rpx;
+            margin-top: 73rpx;
+            margin-bottom: 204rpx;
+        }
+        .name-box{
+            .user-head{
+                width: 50rpx;
+                height: 50rpx;
+                border-radius: 50%;
+                margin-right: 12rpx;
+            }
+        }
+        .card-title{
+            font-family: 'zcoolwenyiti';
+            font-size: 48rpx;
+            line-height: 159rpx;
+            margin-bottom: 32rpx;
+        }
+        .scan{
+            width: 305rpx;
+            height: 305rpx;
+        }
+        .tip-text{
+            margin-top: 80rpx;
+        }
+        .save-box{
+            width: 482rpx;
+            height: 82rpx;
+            border-radius: 40rpx;
+            background: #84C257;
+            color: #fff;
+            text-align: center;
+            line-height: 82rpx;
+            font-size: 30rpx;
+            margin-top: 18rpx;
+        }
+    }
+}
+</style>
+<!--  -->
+<template>
+    <view class='container'>
+        <image class="image_bg" src="/assets/images/proxyCenter/my_mp_bg.png" mode="scaleToFill"
+          lazy-load="false">
+        </image>
+        <view class="card-box flex">
+            <image class="logo" src="/assets/images/proxyCenter/my_logo.png"></image>
+            <view class="name-box flex flex-a-i-center">
+                <image class="user-head" src="{{cardInfo.avatar}}"></image>
+                <rich-text nodes="{{cardInfo.name}}"></rich-text>
+                <text>-{{cardInfo.authorization}}</text>
+            </view>
+            <view class="card-title"> 诚邀您加入ELSKA</view>
+            <image class="scan" src="{{scan}}" @tap="preview"></image>
+            <text class="tip-text">长按图片可识别二维码</text>
+            <view class="save-box" wx:if='{{isJudge}}' @tap="eventSave">保存图片</view>
+            <button class="save-box" wx:else open-type='openSetting' >保存图片</button>
+        </view>
+        <canvasdrawer :painting.sync="painting" @getImage.user="eventGetImage"></canvasdrawer>
+        </canvas>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+import canvasdrawer from '@/components/canvasdrawer'
+import agentApi from '@/apiJs/agentApi.js'
+import Tips from '@/utils/tips.js'
+export default class Card extends wepy.page {
+      config = {
+        navigationBarTitleText: '我的名片'
+      };
+
+      data = {
+        shareImage: '',
+        painting: null,
+        cardInfo: '',
+        scan: '',
+        isJudge: true
+      };
+
+      components = {
+        'canvasdrawer': canvasdrawer
+      };
+
+      methods = {
+        preview () {
+          wepy.previewImage({
+            urls: [this.scan] // 需要预览的图片链接列表,
+          })
+        },
+        async eventSave () {
+            // 保存图片至本地
+          const res = await wepy.saveImageToPhotosAlbum({
+            filePath: this.shareImage
+          })
+          if (res.errMsg === 'saveImageToPhotosAlbum:ok') {
+            Tips.success('图片保存成功', 2000)
+          }
+        },
+        eventGetImage (event) {
+          Tips.loaded()
+          const { tempFilePath, errMsg } = event
+          if (errMsg === 'canvasdrawer:ok') this.shareImage = tempFilePath
+        }
+      };
+    // 绘画
+      eventDraw () {
+        // this.painting = DrawerData
+        this.$apply()
+      };
+
+      events = {};
+
+      watch = {};
+
+      computed = {};
+
+      async onLoad () {
+        Tips.loading('玩命加载中...')
+        var res = await agentApi.getCustomerName()
+        var isrender = await agentApi.render()
+        this.scan = isrender.data
+        console.log(this.scan)
+        this.cardInfo = res.data
+        this.painting = {
+          'width': 375,
+          'height': 603,
+          'clear': true,
+          'views': [
+            {
+              'type': 'image',
+              'url': '/assets/images/proxyCenter/my_mp_bg.png',
+              'top': 0,
+              'left': 0,
+              'width': 375,
+              'height': 603
+            },
+            {
+              'type': 'image',
+              'url': '/assets/images/proxyCenter/my_logo.png',
+              'top': 37,
+              'left': 131,
+              'width': 113,
+              'height': 43
+            },
+            {
+              'type': 'image',
+              'url': this.cardInfo.avatar,
+              'top': 182,
+              'left': 121,
+              'width': 25,
+              'height': 25
+            },
+            {
+              'type': 'text',
+              'content': this.cardInfo.name + '-' + this.cardInfo.authorization,
+              'fontSize': 14,
+              'color': '#222222',
+              'top': 188,
+              'left': 152
+            },
+            {
+              'type': 'text',
+              'content': '诚邀您加入ELSKA',
+              'fontSize': 24,
+              'color': '#222222',
+              'textAlign': 'center',
+              'top': 237,
+              'left': 180
+            },
+            {
+              'type': 'image',
+              'url': isrender.data,
+              'top': 299,
+              'left': 110,
+              'width': 154,
+              'height': 154
+            },
+            {
+              'type': 'text',
+              'content': '长按图片可识别二维码',
+              'fontSize': 14,
+        // "lineHeight": 21,
+              'color': '#222222',
+        // "textAlign": "center",
+              'top': 501,
+              'left': 115,
+              'width': 287
+        // "MaxLineNumber": 2,
+        // "breakWord": true,
+        // "bolder": true
+            }
+          ]
+        }
+        this.$apply()
+      };
+
+      onShow () {
+        this.judgeSave()
+      };
+      judgeSave () {
+        wepy.getSetting().then(async (res) => {
+          if (res.authSetting['scope.writePhotosAlbum'] === false) {
+            this.isJudge = false
+          } else {
+            this.isJudge = true
+          }
+        })
+      }
+    }
+</script>

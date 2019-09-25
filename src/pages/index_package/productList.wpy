@@ -1,0 +1,174 @@
+<style lang="less">
+.container {
+    .line {
+        height: 12rpx;
+        width: 750rpx;
+        background-color: #f2f2f2;
+    }
+
+    .scroller-tab {
+        width: 100%;
+        height: 91rpx;
+        white-space: nowrap;
+
+        .scroller-item {
+            padding: 0 36rpx;
+            display: inline-block;
+            font-size: 28rpx;
+            line-height: 91rpx;
+            font-family: PingFangSC;
+            font-weight: 400;
+            color: #999999;
+            position: relative;
+
+            .item-bottom {
+                position: absolute;
+                left: 50%;
+                bottom: 0;
+                transform: translate(-50%, 0);
+                width: 70%;
+                height: 2rpx;
+                background-color: #568512;
+                display: none;
+            }
+        }
+        .scroller-item.active {
+          color: #568512;
+            .item-bottom {
+                display: block;
+            }
+        }
+    }
+}
+</style>
+
+<template>
+    <view class="container">
+        <scroll-view class="scroller-tab" scroll-x scroll-left="{{scrollLeft}}rpx" scroll-with-animation='true'>
+            <repeat for="{{categoryList}}" key="index" index="index" item="item">
+                <view class="scroller-item {{crrTypeId == item.id ? 'active' : ''}}" @tap="changeActive({{item.id}},{{index}})">
+                    {{item.name}}<view class="item-bottom"></view>
+                </view>
+            </repeat>
+        </scroll-view>
+        <view class="line"></view>
+        <h-list  :list.sync="list"/>
+        <view class='no_goods' wx:if='{{list.length===0}}'>暂无商品~</view>
+        <!-- 加载更多 -->
+        <show-more :moreType.sync='moreType'></show-more>
+
+        <!-- <footer :containerHeight.sync="containerHeight" /> -->
+    </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import hList from '@/components/hList'
+import showMore from '@/components/showMore'
+import index from '@/apiJs/index'
+import Tips from '@/utils/tips'
+export default class ProductList extends wepy.page {
+  config = {
+    navigationBarTitleText: '产品列表'
+  }
+
+  components = {
+    'h-list': hList,
+    'show-more': showMore
+  }
+
+  data = {
+    containerHeight: 0,
+    categoryList: [],
+    crrTypeId: '',
+    current: '',
+    list: [],
+    scrollLeft: 0,
+    offset: 0,
+    limit: 10,
+    moreType: '',
+    switch: true
+  }
+
+  computed = {}
+
+  methods = {
+    changeActive (id, index) {
+      this.crrTypeId = id
+      this.current = index
+      this.offset = 0
+      this.scrollNav()
+      this.getList()
+    }
+  }
+  async onLoad (options) {
+    Tips.loading()
+    this.crrTypeId = options.id
+    this.current = options.current
+    this.containerHeight = await this.$parent.$util.getContainerHeight('.container')
+    this.$apply()
+    this.getCategory()
+    this.getList()
+  }
+  onReachBottom () {
+    if (this.switch) {
+      this.getList()
+    }
+  }
+  // 获取分类
+  getCategory () {
+    index.category().then(res => {
+      this.categoryList = res.data.rows
+      this.$apply()
+      this.scrollNav()
+    })
+  }
+  // 获取分类对应商品列表
+  getList () {
+    this.switch = false
+    var data = {
+      offset: this.offset,
+      limit: this.limit,
+      categoryId: this.crrTypeId
+    }
+    index.getListBySelect(data).then((res) => {
+      if (res.data.rows.length > 0 && res.data.rows.length < 10) {  // 已无数据
+        this.moreType = 2
+        this.switch = false
+      } else {
+        this.moreType = 1
+        this.switch = true
+      }
+      if (this.offset === 0) {
+        this.isToFixed(res.data.rows)
+        this.list = res.data.rows
+        if (res.data.rows.length === 0) {
+          this.moreType = ''
+        }
+      } else {
+        if (res.data.rows.length > 0) {
+          this.isToFixed(res.data.rows)
+          this.list = this.list.concat(res.data.rows)
+        }
+      }
+      this.offset += 10
+      this.$apply()
+      Tips.loaded()
+    })
+  }
+  // 导航栏自动滚动
+  scrollNav () {
+    if (this.current > 3) {
+      this.scrollLeft = 128 * this.current - 1
+    } else {
+      this.scrollLeft = 0
+    }
+  }
+  // toFixed
+  isToFixed (arr) {
+    arr.forEach((item) => {
+      item.counterPrice = (Number(item.counterPrice)).toFixed(2)
+    })
+  }
+}
+</script>

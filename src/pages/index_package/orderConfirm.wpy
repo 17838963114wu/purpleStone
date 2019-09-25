@@ -1,0 +1,479 @@
+<style lang='less'>
+page{
+	background: #f2f2f2;
+}
+.container{
+	padding-bottom: 104rpx;
+}
+.order_detail {
+	.order_item {
+		border-bottom: 1rpx solid rgba(242,242,242,1);
+		padding: 40rpx 25rpx;
+		display: flex;
+		justify-content: space-between;
+
+	}
+	.margin_com{
+		margin-left: 23rpx;
+		padding-left:2rpx; 
+	}
+	.pay-away-box{
+		justify-content: initial;
+		.pay_away{
+			font-weight: 500;
+			color: #222222;
+			font-size: 28rpx;
+		}
+		.select-pay{
+			display: flex;
+			color: #222222;
+			font-size: 28rpx;
+			margin-left: 36rpx;
+		}
+		.select-box{
+			display: flex;
+			align-items: center;
+			margin-right: 81rpx;
+			image{
+				width: 38rpx;
+				height: 38rpx;
+				margin-right: 18rpx;
+			}
+		}
+
+	}
+	.order_product_list {
+		border-bottom: 12rpx solid #EFF1F4;
+		image {
+			width: 140rpx;
+			height: 104rpx;
+			margin-right: 29rpx;
+		}
+		.product_type {
+			text-align: right;
+			.price {
+				font-size:24rpx;
+				font-weight:400;
+				color:rgba(204,0,0,1);
+				margin-bottom: 37rpx;
+			}
+			
+			.count {
+				font-size:24rpx;
+				font-weight:400;
+				color:rgba(34,34,34,1);
+			}
+		}
+		.name {
+			font-size:28rpx;
+			font-weight:400;
+			color:rgba(49,49,49,1);
+			width: 361rpx;
+			margin-bottom: 30rpx;
+		}
+		.type {
+			font-size:24rpx;
+			font-weight:400;
+			color:rgba(153,153,153,1);
+		}
+	}
+	.order_title {
+		font-size:28rpx;
+		font-weight:400;
+		color:rgba(34,34,34,1);
+	}
+	.order_ship {
+		.ship_type {
+			font-size:28rpx;
+			font-weight:400;
+			color:rgba(153,153,153,1);
+			position: relative;
+			flex:1;
+			padding-left: 30rpx;
+			display: flex;
+			.card_number{
+				padding-right: 115rpx;
+				margin-top:-51rpx;
+			}
+			.copy{
+				position: absolute;
+				right: 0;
+				top: -3rpx;
+				background: #84C257;
+				color: #fff;
+				display: inline-block;
+				padding:8rpx 15rpx;
+				border-radius:10rpx;
+
+			}
+		}
+	}
+	.order_message {
+		justify-content: flex-start;
+		align-items: center;
+
+		.order_title {
+			width: 	70rpx;
+		}
+
+		input {
+			flex: 1;
+			margin-left: 65rpx;
+			font-size:28rpx;
+			font-weight:400;
+		}
+	}
+	.order_total {
+		.order_price {
+			font-size:28rpx;
+			font-weight:400;
+			color:rgba(204,0,0,1);
+		}
+	}
+}
+.order_footer {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	height: 104rpx;
+	.order_footer_detail {
+		width: 74.93%;
+		background: white;
+		padding: 41rpx 23rpx;
+		font-size:28rpx;
+		font-weight:400;
+		color:rgba(34,34,34,1);
+		.price_data {
+			color:rgba(204,0,0,1);
+		}
+		.note {
+			font-size:22rpx;
+			font-weight:400;
+			color:rgba(153,153,153,1);
+		}
+	}
+	.order_submit {
+		width: 25.07%;
+		min-width: 188rpx;
+		line-height: 104rpx;
+		text-align: center;
+		background:#84C257;
+		font-size:28rpx;
+		font-weight:400;
+		color:rgba(255,255,255,1);
+	}
+}
+</style>
+
+<template>
+	<view class='container'>
+		<address
+			:hasAddress.sync="hasAddress"
+			@selectAddress.user="selectAddress"
+			:name.sync="name"
+            :phone.sync="phone"
+            :address.sync="address"			
+		></address>
+		<view class="line"></view>
+		<view class="order_detail">
+			<repeat for="{{list}}" key="index" index="index" item="item">
+				<view class="order_item order_product_list flex flex-j-c-sb">
+					<view class="product_info flex">
+						<image src="{{item.specImg}}" mode="aspectFill"
+						lazy-load="false">
+						</image>
+						<view>
+							<view class="name">{{item.name}}</view>
+							<view class="type" >{{item.property}}</view>
+						</view>
+					</view>
+					<view class="product_type">
+						<view class="price">￥{{item.specPrice}}</view>
+						<view class="count">x{{item.number}}</view>
+					</view>
+				</view>
+			</repeat>
+			<view class="order_item margin_com pay-away-box">
+				<view class="pay_away">支付方式</view>
+				<view class="select-pay">
+					<view class="select-box" @tap="selectPay(1)">
+						<image src="{{pay_away==1?'/assets/images/shoppingCar/circle_click.png':'/assets/images/shoppingCar/shoppingcart_rd_n.png'}}"></image>
+						微信支付
+					</view>
+					<view class="select-box" @tap="selectPay(2)">
+						<image src="{{pay_away==2?'/assets/images/shoppingCar/circle_click.png':'/assets/images/shoppingCar/shoppingcart_rd_n.png'}}"></image>
+						线下支付
+					</view>
+				</view>
+			</view>
+			<view class="order_item order_ship margin_com" wx:if="{{pay_away==1}}">
+				<view class="order_title">配送方式</view>
+				<view class="ship_type">快递包邮</view>
+			</view>
+			<view class="order_item order_ship margin_com" wx:if="{{pay_away==2}}">
+				<view class="order_title">请转账至卡号</view>
+				<view class="ship_type">
+					<text class="card_number">
+						6214633131060330601
+						(户名：廖靖军)
+					</text>
+					<view class="copy" @tap="copy" data-copy_text="6214633131060330601">复制</view>
+				</view>
+			</view>
+			<view class="order_item order_message flex margin_com">
+				<view class="order_title">留言</view>
+				<input value="" type="text" placeholder="点击给商家留言" placeholder-class="placeholder"
+				  maxlength="140" @input="getMsg"> 
+				</input>
+			</view>
+			<view class="order_item order_total margin_com">
+				<view class="order_title">小计</view>
+				<view class="order_price">￥{{orderTotalPrice}}</view>
+			</view>
+		</view>
+		<view class="order_footer flex">
+			<view class="order_footer_detail flex flex-j-c-sb">
+				<view class="footer_price">
+					<text>合计：</text>
+					<text class="price_data">￥{{orderTotalPrice}}</text>
+				</view>
+				<view class="note">
+					已享受免运费
+				</view>
+			</view>
+			<view class="order_submit" @tap="submit">
+				提交订单
+			</view>
+		</view>
+		<view wx:if="{{ showModal }}">
+			<!-- <modal :success.sync="success" :showModal.sync="showModal"></modal> -->
+		</view>
+	</view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+import Address from '@/components/address'
+import order from '@/apiJs/order'
+import Tips from '@/utils/tips.js'
+// import CartModal from '@/components/cartModal';
+export default class OrderConfirm extends wepy.page {
+    config = {
+      navigationBarTitleText: '待提交订单'
+    };
+
+    data = {
+      hasAddress: true,
+      list: [],
+      success: true,
+      showModal: false,
+      addressList: [],
+      addressObj: [],
+      name: '',
+      phone: '',
+      address: '',
+      price: 0,
+      addId: 0,
+      msg: '',
+      option: {},
+      pay_away: 1,
+      orderTotalPrice: '', // 订单总额
+      isType: 1,
+      messageObj: [],
+      message: '',
+      shippingType: 2,
+      switch: true
+    };
+
+    components = {
+      'address': Address
+    };
+
+    methods = {
+	   // 选择支付方式
+      selectPay (id) {
+        this.pay_away = id
+      },
+			// 选择地址
+      selectAddress (url) {
+        wepy.navigateTo({ url: url })
+      },
+      async submit () {
+			// 判断地址存在
+        if (!this.hasAddress) {
+          Tips.alert('请填写收货地址')
+        } else {
+				// 参数处理
+          if (this.switch) {
+            this.switch = false
+            var cartId = [], number = [], type = [], goodsId = []
+            this.list.forEach(item => {
+              cartId.push(item.cartId)
+              goodsId.push(item.id)
+              number.push(item.count)
+              type.push(item.specifications)
+            })
+            cartId = cartId.join()
+            goodsId = goodsId.join()
+            number = number.join()
+            type = type.join()
+
+            var payType
+            if (Number(this.isType) === 1) {   // 从商品详情业进入
+              if (Number(this.pay_away) === 1) {  // 微信支付
+                payType = 2
+              } else {  // 线下
+                payType = 1
+              }
+              let param = {
+                goodsId: this.list[0].goodsId,
+                number: this.list[0].number,
+                specificationsId: this.list[0].specificationId,
+                addressId: this.addId,
+                message: this.message,
+                payType: payType,
+                shippingType: this.shippingType
+              }
+              order.addOrder(param).then(res => {
+                console.log(res)
+                if (res.code === 2019) {
+                  Tips.success('您还不是代理商').then(res => {
+                    wepy.navigateTo({ url: '/pages/login' })
+                  })
+                } else if (res.code === 0) {
+                  this.pay(res.data.payType, res.data.orderId)
+                } else if (res.code === 200) {
+				  Tips.success('抱歉，库存不足')
+				  this.switch = true
+                }
+              })
+            } else {   // 购物车进入
+              if (Number(this.pay_away) === 1) {  // 微信支付
+                payType = 2
+              } else {  // 线下
+                payType = 1
+              }
+              var cars = []
+              var json = {}
+              this.list.forEach(item => {
+                json = {id: item.cartId, number: item.number}
+                cars.push(json)
+              })
+              let param = {
+                addressId: this.addId,
+                message: this.message,
+                payType: payType,
+                shippingType: this.shippingType,
+                cars: cars
+              }
+              order.addCartOrder(param).then(res => {
+                console.log(res)
+                if (res.code === 200) {
+                  Tips.success(res.message).then(() => {
+                    wepy.navigateBack({
+                      delta: 1
+                    })
+				  })
+				  return false
+                }
+
+                this.pay(res.data.payType, res.data.orderId)
+              })
+            }
+          }
+        }
+      },
+      getMsg (e) {
+        this.message = e.detail.value
+      },
+		// 复制号码
+      copy (e) {
+        let copyText = e.currentTarget.dataset.copy_text
+        wepy.setClipboardData({
+          data: copyText + ''
+        })
+      }
+    };
+
+    events = {};
+
+    watch = {};
+
+    computed = {};
+
+    async onLoad (option) {
+      this.isType = option.isType
+      this.list = this.$parent.globalData.buyGoodsList
+      var orderTotalPrice = 0
+      this.list.forEach(item => {
+        orderTotalPrice += Number(item.totalPrice)
+      })
+      this.orderTotalPrice = orderTotalPrice.toFixed(2)
+    };
+
+    async onShow () {
+      Tips.loading()
+      this.getAddressList()
+    }
+		// 获取地址
+    getAddressList () {
+      order.addressList().then(res => {
+        this.addressList = res.data
+        if (res.data.length === 0) {
+          this.hasAddress = false
+          this.$apply()
+        } else {
+          this.hasAddress = true
+          this.addressObj = this.addressList.filter(item => {
+            return item.isDefault === 1
+          })
+          this.addId = this.addressObj.length > 0 ? this.addressObj[0].id : this.addressList[0].id
+          this.name = this.addressObj.length > 0 ? this.addressObj[0].name : this.addressList[0].name
+          this.phone = this.addressObj.length > 0 ? this.addressObj[0].mobile : this.addressList[0].mobile
+          this.address = this.addressObj.length > 0 ? this.addressObj[0].address : this.addressList[0].address
+          var province = this.addressObj.length > 0 ? this.addressObj[0].provinces : this.addressList[0].provinces
+          var city = this.addressObj.length > 0 ? this.addressObj[0].cities : this.addressList[0].cities
+          var area = this.addressObj.length > 0 ? this.addressObj[0].areas : this.addressList[0].areas
+          this.address = `${province}${city}${area} ${this.address}`
+          this.$apply()
+        }
+
+        Tips.loaded()
+      })
+    }
+
+		// 支付
+    pay (pay_away, orderId) {
+      if (pay_away === 2) { // 线上支付
+        Tips.loading('支付跳转中...')
+        let that = this
+        order.unifiedOrder({id: orderId}).then(data => {
+          if (data.code === 0) {
+            console.log(data.data.timestamp)
+            wx.requestPayment({
+              'timeStamp': (data.data.timestamp).toString(),
+              'nonceStr': data.data.nonce,
+              'package': data.data.pack,
+              'signType': 'MD5',
+              'paySign': data.data.signature,
+              success (res) {
+                Tips.success('支付成功').then(() => {
+                  wepy.navigateTo({ url: '/pages/order_package/orderCenter?id=2'})
+                })
+              },
+              fail (res) {
+                Tips.success('您已取消支付').then(() => {
+                  wepy.navigateTo({ url: '/pages/order_package/orderCenter?id=6'})
+                })
+                that.$apply()
+              }
+            })
+            Tips.loaded()
+          }
+        })
+      } else {
+        wepy.navigateTo({ url: '/pages/order_package/orderCenter?id=1'})
+      }
+    }
+}
+</script>

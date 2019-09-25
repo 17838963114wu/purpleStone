@@ -1,0 +1,135 @@
+<!--  -->
+<template>
+    <view class='container'>
+        <view class='div'>
+          <image src='' mode="aspectFill" class='backe5'></image>
+          <view class='name'>Elska智能营养定制</view>
+          <view class='detail'>
+          请微信授权后放心使用Elska智能营养定制
+          </view>
+          <view class='detail' style='margin-top: 0;'>您的数据和信息将受到保护</view>
+          <button hover-class="none" open-type="getUserInfo" lang="zh_CN" bindgetuserinfo="onGotUserInfo" class='button'>
+            <image class='wethat' src='/assets/images/index/wxicon.png' mode="aspectFill"></image>
+            微信授权登录  
+          </button>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import api from '@/apiJs/api.js'
+    import Tips from '@/utils/tips.js'
+    export default class WxInfo extends wepy.page {
+      config = {
+        navigationBarTitleText: '小程序授权'
+      };
+
+      data = {
+
+      };
+
+      components = {};
+
+      methods = {
+        async onGotUserInfo (e) {
+          console.log(e.detail)
+          let customerId = wepy.$instance.globalData.customerId
+          wx.setStorageSync('authorization', e.detail)
+          if (e.detail.userInfo) {
+            let res = await wepy.login()
+            if (res.code) {
+              var code = res.code
+            }
+            const data = {
+              code: code,
+              iv: e.detail.iv,
+              encryptedData: e.detail.encryptedData
+            }
+            if (customerId) {
+              data.customerId = customerId
+            }
+            api.wxUserInfo(data).then(res => {
+              console.log(res)
+              if (res.code === 0) {
+                console.log('token')
+                console.log(res.data)
+                wx.setStorageSync('Token', res.data)
+                Tips.success('授权成功').then(() => {
+                  wepy.reLaunch({
+                    url: '/pages/index'
+                  })
+                })
+              } else {
+                Tips.success('授权失败，请检查您的网络，重新进入页面授权')
+              }
+            })
+          }
+        },
+
+        back () {
+    
+        }
+      };
+
+      events = {};
+
+      watch = {};
+
+      computed = {};
+
+      onLoad (option) {
+    
+      };
+
+      onShow () {
+      };
+      onUnload () {
+        // api.judge()
+      }
+}
+</script>
+
+<style lang='less'>
+page{
+  height: 100%;
+  background-color: #fff;
+}
+image{
+  width: 172rpx;
+  height: 172rpx;
+  border-radius: 50%;
+  margin: 100rpx 0 0;
+}
+.div{
+  text-align: center;
+}
+button{
+  padding: 0;
+  background-color: #84C257;
+  color: #fff;
+  font-size: 32rpx;
+  width: 60%;
+  margin: 0 auto;
+  margin-top: 100rpx;
+  line-height:2.55555556;
+  box-sizing: border-box;
+}
+.detail{
+  font-size: 28rpx;
+  margin: 60rpx 0 4rpx;
+  color: #666;
+}
+.name{
+  font-size: 36rpx;
+  margin: 30rpx 0;
+}
+.wethat{
+  width:50rpx;
+  height:40rpx;
+  margin:0;
+  border-radius:0;
+  vertical-align: middle;
+  margin-bottom: 2rpx;
+}
+</style>

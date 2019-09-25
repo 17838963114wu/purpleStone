@@ -1,0 +1,164 @@
+<style lang="less">
+@import '../base';
+.h-list {
+    width: 750rpx;
+
+    .list-item {
+        width: 370rpx;
+        padding-bottom: 40rpx;
+
+        image {
+            width: 100%;
+            height: 278rpx;
+        }
+
+        .list-title {
+            padding: 0 25rpx;
+            font-size: 28rpx;
+            font-weight: 400;
+            color: #313131;
+            line-height: 36rpx;
+            height:72rpx;
+            margin: 15rpx 0 15rpx;
+        }
+
+        .bottom-bar {
+            padding: 0 25rpx;
+            .bar-left {
+                position: relative;
+                top: -5rpx;
+                .price {
+                    font-size: 30rpx;
+                    line-height: 30rpx;
+                    font-weight: 400;
+                    color: #cc0000;
+                }
+
+                .type {
+                    width: 54rpx;
+                    height: 28rpx;
+                    border: 1px solid #999;
+                    border-radius: 4rpx;
+                    font-size: 20rpx;
+                    font-weight: 400;
+                    color: #999;
+                    margin-left: 21rpx;
+                }
+                
+                .type.package {
+                    border: 1px solid #601986;
+                    color: #601986;
+                }
+
+                .type.special {
+                    border: 1px solid #568512;
+                    color: #568512;
+                }
+            }
+
+            .shopp-car-icon {
+                width: 50rpx;
+                height: 50rpx;
+                :active{
+                  opacity: 0.7;
+                }
+            }
+        }
+    }
+}
+</style>
+<template>
+    <view class="h-list flex flex-wrap flex-j-c-sb">
+        <repeat for="{{list}}" key="index" index="index" item="item">
+            <view class="list-item"  @tap="goPath({{item.id}})">
+                <image src="{{item.picUrl}}" mode="aspectFill" />
+                <view class="list-title ellipsis2">{{item.name}}</view>
+                <view class="bottom-bar flex flex-j-c-sb flex-a-i-baseline">
+                    <view class="bar-left flex">
+                        <view class="price">￥{{item.counterPrice}}</view>
+                        <view class="type flex flex-a-i-center flex-j-c-center" wx:if="{{item.activity == '包邮'}}">包邮</view>
+                        <view class="type special flex flex-a-i-center flex-j-c-center" wx:if="{{item.activity == '特价'}}">特价</view>
+                    </view>
+                    <image class="shopp-car-icon" src="/assets/images/index/home_shop_icon.png" catchtap="addCart({{index}})"/>
+                </view>
+            </view>
+        </repeat>
+    </view>
+</template>
+<script>
+import wepy from 'wepy'
+import { connect } from 'wepy-redux'
+import goods from '@/apiJs/goods'
+import Tips from '@/utils/tips.js'
+import api from '@/apiJs/api.js'
+@connect({
+  stateNum (state) {
+    return state.counter.num
+  },
+  asyncNum (state) {
+    return state.counter.asyncNum
+  }
+})
+
+export default class HList extends wepy.component {
+  props = {
+    list: {
+      type: [Array, Object],
+      default: []
+    }
+  }
+
+  data = {}
+
+  events = {}
+
+  watch = {}
+
+  methods = {
+    goPath (id) {
+      wepy.navigateTo({url: '/pages/index_package/goodsDetail?id=' + id})
+    },
+    async addCart (index) {
+      var that = this
+      if (!api.toAuthor()) {
+        return false
+      }
+      if (!api.judgeAgentForbit()) {
+        return false
+      }
+      if (!api.judgeAgent()) {
+        return false
+      }
+      let data
+      if (that.list[index].inventoryDOList.length === 0) {
+        // data = {
+        //   goodsId: that.list[index].id,
+        //   number: 1,
+        //   specifications: ''
+        // }
+        Tips.success('该宝贝暂不能购买')
+        return false
+      } else {
+        data = {
+          goodsId: that.list[index].id,
+          number: 1,
+          specifications: that.list[index].inventoryDOList[0].id
+        }
+      }
+      goods.addCart(data).then(res => {
+        if (res.data === 'OK') {
+          Tips.addSuccess('添加宝贝成功')
+        } else if (res.code === 200) {
+          Tips.success('抱歉，库存不足')
+        }
+      })
+
+      this.getCartNumber() // 获取购物车数量
+    }
+  }
+  // 获取购物车数量
+  getCartNumber () {
+    goods.selectCartCount()
+  }
+}
+</script>

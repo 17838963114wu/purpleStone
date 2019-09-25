@@ -1,0 +1,383 @@
+<!-- 代理资料设置 -->
+<style lang='less'>
+page{
+    background: #f2f2f2;
+}
+.container {
+    margin-top: 12rpx;
+    label {
+        margin-right: 33rpx;
+        font-size:28rpx;
+        font-family:PingFangSC;
+        font-weight:400;
+        color:rgba(34,34,34,1);
+    }
+    input {
+        font-size:28rpx;
+        font-family:PingFangSC;
+        font-weight:400;
+        flex: 1;
+        text-align: right;
+    }
+    .avatar {
+        width:64rpx;
+        height:64rpx;
+        border-radius:50%;
+    }
+    .wx_number{
+        width: 108rpx;
+        height: 88rpx;
+    }
+    .item {
+        padding: 33rpx 40rpx 33rpx 0;
+        margin-left: 25rpx;
+        border-bottom: 1rpx solid rgba(242,242,242,1);
+        .item_info {
+            font-size:28rpx;
+            font-family:PingFangSC;
+            font-weight:400;
+            color:rgba(34,34,34,1);
+        }
+        .gray-color{
+            color: #999999;
+        }
+        .icon_more::before {
+            content: "\e60d";
+            font-size: 30rpx;
+            color: #CCCCCC;
+            margin-left: 27rpx;
+        }
+    }
+    .btn {
+        position: fixed;
+        bottom: 81rpx;
+        left: 25rpx;
+        width:700rpx;
+        height:82rpx;
+        margin: 0 auto;
+        background:#84C257;
+        border-radius:41rpx;
+        font-size:30rpx;
+        font-family:PingFangSC;
+        font-weight:400;
+        color:rgba(255,255,255,1);
+        text-align: center;
+        line-height: 82rpx;
+    }
+    .prev_info{
+        border-top: 12rpx solid #f2f2f2;
+        .prve_title{
+            font-weight: 600;
+            text{
+                font-weight: 400;
+                color: #666666;
+                font-size: 26rpx;
+            }
+        }
+    }
+    .wx_picture{
+        font-size: 28rpx;
+        color: #999999;
+    }
+    // 弹出
+    .dialog-box{
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        .mask{
+            z-index: 11;
+            background: #333;
+            opacity: 0.7;
+        }
+        .dialog-content{
+            background: #FDFFFF;
+            width: 626rpx;
+            height: 384rpx;
+            border-radius: 10rpx;
+            top: 30%;
+            left: 50%;
+            margin-left: -313rpx;
+            z-index: 12;
+            display: flex;
+            flex-direction: column;
+            animation:fadeInDown 0.3s;
+            .get-box{
+                width: 100%;
+                border-bottom: 1rpx solid #ccc;
+                display: flex;
+                height: 99rpx;
+                color: #568512;
+                view{
+                    padding: 0 20rpx;
+                    height:48rpx;
+                    border:1px solid rgba(86,133,18,1);
+                    border-radius:24rpx;
+                    font-size: 26rpx;
+                    line-height: 48rpx;
+                    text-align: center;
+                }
+                .timer{
+                    border:1px solid rgba(153,153,153,1);
+                    color: #999;
+                }
+            }
+            .verify-box{
+                padding: 40rpx;
+                input{
+                    width: 88rpx;
+                    height: 85rpx;
+                    line-height: 85rpx;
+                    font-size: 40rpx;
+                    color: #333;
+                    border-bottom: 1rpx solid #CCCCCC;
+                    flex: none;
+                    text-align: center;
+                }
+            }
+            .confirm-btn{
+                width:242rpx;
+                height:60rpx;
+                background:rgba(132,194,87,1);
+                border-radius:30rpx;
+                font-size: 28rpx;
+                color: #FDFFFF;
+                text-align: center;
+                line-height: 60rpx;
+                margin: 0 auto;
+                margin-top: 10rpx;
+
+            }
+        }
+    }
+    .mobile-active:active{
+        background: #f2f2f2;
+    }
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            -webkit-transform: translate3d(0, -100%, 0);
+            transform: translate3d(0, -100%, 0);
+        }
+
+        to {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+        }
+    }
+    .input-sign{
+        position: absolute;
+        
+        height: 0;
+        opacity: 0;
+    }
+}
+</style>
+
+<template>
+    <view class='container'>
+        <view class='item flex flex-a-i-center flex-j-c-sb'>
+            <label>代理头像</label>
+            <image class="avatar" src="{{info.avatar}}" mode="aspectFit"
+            lazy-load="false">
+            </image>
+        </view>
+        <form @submit="submit" @reset="reset">
+            <view class='item flex flex-a-i-baseline flex-j-c-sb'>
+                <label>代理姓名</label>
+                <rich-text nodes="{{info.username}}" class="item_info gray-color"></rich-text>
+            </view>
+            <view class='item flex flex-a-i-baseline flex-j-c-sb'>
+                <label>会员编号</label>
+                <view class="item_info gray-color">{{info.authorization}}</view>
+            </view>
+            <view class='item flex flex-j-c-sb'>
+                <label>微信号</label>
+                <view class="wx_picture">
+                    <image class="wx_number" src="{{info.wechat}}" mode="aspectFit"
+                lazy-load="false">
+                </view>
+            </view>
+            <view class='item flex flex-a-i-baseline flex-j-c-sb' hover-class="mobile-active" @tap='modifyMobile'>
+                <label>手机号码</label>
+                <view class="item_info">{{info.mobile}}</view>
+            </view>
+            <view class='item flex flex-a-i-center flex-j-c-sb'>
+                <label>登录密码</label>
+                <view class="item_info">{{info.password?info.password:'默认密码为888888'}}</view>
+            </view>
+            <view class="prev_info">
+                <view class='item flex flex-a-i-baseline flex-j-c-sb'>
+                    <label class="prve_title">
+                        上级信息
+                        <text>(*推荐人不可修改，请谨慎填写*)</text>
+                        </label>
+                </view>
+                <view class='item flex flex-a-i-baseline flex-j-c-sb '>
+                    <label>推荐人名称</label>
+                    <view class="item_info gray-color">{{info.agentName?info.agentName:'*暂无'}}</view>
+                </input>
+                </view>
+                <view class='item flex flex-a-i-baseline flex-j-c-sb '>
+                    <label>推荐人会员编号</label>
+                     <view class="item_info gray-color" >{{info.agentAuthorization?info.agentAuthorization:'*暂无'}}</view>
+                </input>
+                </view>
+            </view>
+            <button class="btn" formType="submit">保存修改</button>
+        </form>
+        <!-- 获取手机验证码 -->
+        <view class="dialog-box" wx:if="{{isModify}}">
+            <view class="dialog-box mask" @tap="closeDialog"></view>
+            <view class="dialog-box dialog-content">
+                <view class="get-box flex-a-i-center flex-j-c-center">
+                    <view wx:if="{{isVerify}}" @tap="getCode">获取验证码</view>
+                    <view wx:else>重新发送({{timeNumber}}秒)</view>
+                </view>
+                <view class="verify-box flex flex-j-c-sa">
+                    <repeat for="{{inputArr}}" key="index" index="index" item="item">
+                       <input type="number" maxlength="1" value="{{signValue.length>=index+1?signValue[index]:''}}" disabled catchtap="tapInput"></input> 
+                    </repeat>
+                </view>
+                <view>
+                    <input maxlength="4" class="input-sign" type="number" focus="{{isFocus}}" @input="focusInput" ></input>
+                </view>
+                <view class="confirm-btn" @tap="changeMobile">确定</view>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import agentApi from '@/apiJs/agentApi.js'
+    import login from '@/apiJs/login.js'
+    import Tips from '@/utils/tips.js'
+    export default class ProxyInfoModify extends wepy.page {
+      config = {
+        navigationBarTitleText: '修改设置'
+      };
+
+      data = {
+        disabled: true,
+        info: {},
+        inputArr: [{}, {}, {}, {}],
+        isModify: false,
+        timmer: null,
+        timeNumber: 60,
+        isVerify: true,
+        sign: '',
+        isFocus: true,
+        signValue: ''
+      };
+
+      components = {};
+
+      methods = {
+        //  点击手机号码
+        modifyMobile () {
+          this.isModify = true
+        },
+        // 关闭
+        closeDialog () {
+          this.isModify = false
+        },
+        // 修改手机确定
+        changeMobile () {
+          if (!this.signValue) {
+            Tips.success('请输入验证码')
+            return false
+          }
+          let param = {
+            captcha: this.signValue,
+            mobile: this.info.mobile
+          }
+          agentApi.checkcaptcha(param).then(res => {
+            if (res.code === 0) {
+              wepy.navigateTo({ url: '/pages/agent_package/modifyMobile' })
+              this.isModify = false
+            } else {
+              Tips.success(res.message)
+            }
+          })
+        },
+        // 点击获取验证码
+        getCode () {
+          this.isVerify = false
+          login.captchaCode({phone: this.info.mobile}).then(res => {
+            if (res.code === 0) {
+              this.sign = res.data
+            }
+            this.timmer = setInterval(() => {
+              this.timeNumber--
+              if (this.timeNumber === 0) {
+                this.isVerify = true
+                this.timeNumber = 60
+                clearInterval(this.timmer)
+              }
+              this.$apply()
+            }, 1000)
+          })
+        },
+        // 输入验证码
+        focusInput (e) {
+          console.log(e)
+          var inputValue = e.detail.value
+          var ilen = inputValue.length
+          if (ilen === 4) {
+
+          } else {
+    
+          }
+          this.signValue = inputValue
+        },
+        tapInput () {
+          console.log('ddddddddddd')
+          // this.isFocus = true
+          this.setData({
+            isFocus: true
+          })
+        },
+        async submit (e) {
+          var param = {
+            avatar: this.info.avatar,
+            wechat: this.info.wechat,
+            username: this.info.username,
+            agentAuthorization: this.info.agentAuthorization
+          }
+          if (!this.info.agentAuthorization) {
+            delete param.agentAuthorization
+          }
+          console.log(param)
+          agentApi.updatePersonalInfo(param).then(res => {
+            console.log(res)
+            if (res.code === 0) {
+              Tips.success('修改成功').then(() => {
+                wepy.navigateBack({
+                  delta: 2
+                })
+              })
+            }
+          })
+        }
+      };
+
+      events = {};
+
+      watch = {};
+
+      computed = {};
+
+      async onLoad () {
+        var curPages = getCurrentPages()
+        var prevPage = curPages[curPages.length - 2]
+        this.info = prevPage.data.info
+        this.wxImg = prevPage.data.wxImg
+      };
+
+      onShow () { };
+    }
+</script>

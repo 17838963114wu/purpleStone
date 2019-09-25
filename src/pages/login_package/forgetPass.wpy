@@ -1,0 +1,242 @@
+<style lang='less'>
+page{
+    background: #F2F2F2;
+}
+.container {
+    margin-top: 12rpx;
+    label {
+        width: 137rpx;
+        margin-right: 33rpx;
+        font-size:28rpx;
+        font-family:PingFangSC;
+        font-weight:400;
+        color:rgba(34,34,34,1);
+    }
+    input {
+        font-size:28rpx;
+        font-family:PingFangSC;
+        font-weight:400;
+        width: 300rpx;
+    }
+    .item {
+        padding: 33rpx 25rpx 33rpx 0;
+        margin-left: 25rpx;
+        border-bottom: 1rpx solid rgba(242,242,242,1);
+        position: relative;
+    }
+    .info {
+        border-bottom: 12rpx solid rgba(242,242,242,1);
+        .select {
+            width: 550rpx;
+            font-size:28rpx;
+            font-family:PingFangSC;
+            font-weight:400;
+            // color:rgba(153,153,153,1);
+        }
+        .icon_more::before {
+            content: '\e60d';
+        }
+    }
+    .superior {
+        .superior_title {
+            font-size:28rpx;
+            font-family:PingFangSC-Medium;
+            font-weight:500;
+            color:rgba(34,34,34,1);
+        }
+    }
+    .get-code{
+        color: #568512;
+        font-size: 28rpx;
+        height: 100%;
+        position: absolute;
+        right: 0;
+        padding: 40rpx;
+    }
+    .btn {
+        background: #F2F2F2;
+        text-align: center;
+        position: fixed;
+        bottom: 67rpx;
+        width: 100%;
+        .note {
+            font-size:24rpx;
+            font-family:PingFangSC;
+            font-weight:400;
+            color:rgba(153,153,153,1);
+        }
+        .btn_submit {
+            width:700rpx;
+            height:82rpx;
+            margin: 0 auto;
+            margin-top: 19rpx;
+            margin-bottom: 40rpx;
+            background:#84C257;
+            // opacity:0.6;
+            border-radius:41rpx;
+            font-size:30rpx;
+            font-weight:400;
+            color:rgba(255,255,255,1);
+            line-height: 82rpx;
+        }
+    }
+}
+</style>
+
+<!-- 忘记密码 -->
+<template>
+    <view class='container'>
+        <form @submit="submit" @reset="reset">
+            <view class="info">
+                <view class='item flex flex-a-i-center'>
+                    <label>手机号</label>
+                    <input name="phone" type="number" placeholder="请输入您的手机号码" placeholder-class="placeholder"
+                      @input="changeMobile"
+                    maxlength="11"> 
+                    </input>
+                </view>
+                <view class='item flex flex-a-i-center'>
+                    <label>登陆密码</label>
+                    <input name="password" type="password" placeholder="请设置密码(6-12位字符)" placeholder-class="placeholder"
+                    maxlength="20"> 
+                    </input>
+                </view>
+                <view class='item flex flex-a-i-center'>
+                    <label>验证码</label>
+                    <input name="captcha" type="number" placeholder="请输入手机验证码" placeholder-class="placeholder"
+                    maxlength="6"> 
+                    </input>
+                    <view class="get-code" wx:if="{{isVerify}}" @tap="getCode">获取验证码</view>
+                    <view class="get-code" wx:else>重新发送({{timeNumber}}秒)</view>
+                </view>
+            </view>
+            <view class="btn">
+                <button class="btn_submit" formType="submit"> 保存 </button>
+            </view>
+        </form>
+
+        <modal :success.sync="success" />
+    </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import CartModal from '@/components/cartModal'
+  import login from '@/apiJs/login.js'
+  import Tips from '@/utils/tips.js'
+export default class forgetPass extends wepy.page {
+    config = {
+      navigationBarTitleText: '修改登陆密码'
+    };
+
+    data = {
+      level: [],
+      show: false,
+      proxySuccess: false,
+      id: 0,
+      keyName: '',
+      timmer: null,
+      timeNumber: 60,
+      isVerify: true,
+      phone: '',
+      sign: '',
+      success: '',
+      isType: 1
+    };
+
+    components = {
+      'modal': CartModal
+    };
+
+    methods = {
+      async submit (e) {
+        const params = e.detail.value
+        if (!params.phone) {
+          Tips.success('请输入手机号码')
+          return false
+        }
+        if (!params.password) {
+          Tips.success('请输入重新设置的密码')
+          return false
+        }
+        if (!params.captcha) {
+          Tips.success('请输入验证码')
+          return false
+        }
+        login.forgetPassword(params).then(res => {
+          console.log(res)
+          if (res.code === 0) {
+            if (Number(this.isType === 2)) {
+              var curPages = getCurrentPages()
+              var prevPage = curPages[curPages.length - 2]
+              prevPage.setData({
+                'info.password': params.password
+              })
+            }
+            Tips.success('密码修改成功').then(() => {
+              wepy.navigateBack({
+                delta: 1
+              })
+            })
+          } else {
+            Tips.success(res.message)
+          }
+        })
+      },
+    // 点击获取验证码
+      getCode () {
+      // 填了手机号码
+        var reg = /^[1][2,3,4,5,6,7,8,9][0-9]{9}$/
+        if (!reg.test(this.phone)) {
+          Tips.success('请输入正确的手机号码')
+          return false
+        }
+        login.captchaCode({phone: this.phone}).then(res => {
+          if (res.code === 0) {
+            this.sign = res.data
+          }
+          this.isVerify = false
+          this.timmer = setInterval(() => {
+            this.timeNumber--
+            if (this.timeNumber === 0) {
+              this.isVerify = true
+              this.timeNumber = 60
+              clearInterval(this.timmer)
+            }
+            this.$apply()
+          }, 1000)
+        })
+      },
+    // 输入手机号码
+      changeMobile (e) {
+        this.phone = e.detail.value
+      }
+    };
+    events = {};
+
+    watch = {};
+
+    computed = {};
+
+    async onLoad (options) {
+      console.log(options)
+      if (Number(options.isType) === 1) {  // 登录页面进入
+        this.isType = 1
+      } else {
+        this.isType = 2
+      }
+      this.getStatus()
+    };
+
+    onShow () { };
+    // 申请代理状态
+    getStatus () {
+      login.status().then(res => {
+        if (res.code === 201) {
+          this.success = 2
+        }
+        this.$apply()
+      })
+    }
+}
+</script>

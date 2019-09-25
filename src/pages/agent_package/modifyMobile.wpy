@@ -1,0 +1,165 @@
+<!-- 代理资料设置 -->
+<style lang='less'>
+page{
+    background: #f2f2f2;
+}
+.container {
+    margin-top: 12rpx;
+    .top-box{
+        background: #fff;
+        padding-left: 23rpx;
+        .input-box{
+            height: 102rpx;
+            border-bottom: 1rpx solid #f2f2f2;
+            font-size: 28rpx;
+            position: relative;
+            text{
+                width: 162rpx;
+            }
+            input{
+                width: 250rpx;
+            }
+            .get-code{
+                position: absolute;
+                right: 0;
+                padding: 0 40rpx;
+                height: 100%;
+                line-height: 102rpx; 
+                color: #568512;
+            }
+        }
+        .input-box:last-child{
+            border-bottom: none;
+        }
+    }
+    .save-btn{
+        position: fixed;
+        bottom: 104rpx;
+        width:702rpx;
+        height:82rpx;
+        text-align: center;
+        line-height: 82rpx;
+        background:rgba(132,194,87,1);
+        opacity:0.5;
+        border-radius:41rpx;
+        font-size: 30rpx;
+        color: #fff;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .noapacity{
+         opacity:1;
+    }
+}
+</style>
+
+<template>
+    <view class='container'>
+       <form @submit="submit" >
+           <view class="top-box">
+                <view class="input-box flex flex-a-i-center">
+                    <text>新手机号</text>
+                    <input type="number" name="mobile" maxlength="11" placeholder="请输入您的新号码" @input="changeInput(1)"></input>
+                </view>
+                <view class="input-box flex flex-a-i-center">
+                    <text>验证码</text>
+                    <input type="number" name="captcha" maxlength="6" placeholder="请输入手机验证码" @input="changeInput(2)"></input>
+                    <view class="get-code" wx:if="{{isVerify}}" @tap="getCode">获取验证码</view>
+                    <view class="get-code" wx:else>重新发送({{timeNumber}}秒)</view>
+                </view>
+            </view>
+            <button formType="submit" class="save-btn noapacity" >保存</button>
+            <!-- <button formType="submit" class="save-btn noapacity" wx:else>保存</button> -->
+       </form>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import agentApi from '@/apiJs/agentApi.js'
+    import login from '@/apiJs/login.js'
+    import Tips from '@/utils/tips.js'
+    export default class modifyMobile extends wepy.page {
+      config = {
+        navigationBarTitleText: '修改手机号码'
+      };
+      data = {
+        isAble: true,
+        timeNumber: 60,
+        isVerify: true,
+        sign: '',
+        mobile: '',
+        captcha: ''
+      };
+
+      components = {};
+
+      methods = {
+        //   输入触发
+        changeInput (n, e) {
+          let value = e.detail.value
+          console.log(value)
+          if (n == 1) {
+            this.mobile = value
+          } else {
+            this.captcha = value
+          }
+        },
+        // 点击获取验证码
+        getCode () {
+          var reg = /^[1][2,3,4,5,6,7,8,9][0-9]{9}$/
+          if (!reg.test(this.mobile)) {
+            Tips.success('请输入正确的手机号码')
+            return false
+          }
+          this.isVerify = false
+          login.captchaCode({phone: this.mobile}).then(res => {
+            if (res.code === 0) {
+              this.sign = res.data
+            }
+            this.timmer = setInterval(() => {
+              this.timeNumber--
+              if (this.timeNumber === 0) {
+                this.isVerify = true
+                this.timeNumber = 60
+                clearInterval(this.timmer)
+              }
+              this.$apply()
+            }, 1000)
+          })
+        },
+        // 确定
+        submit (e) {
+          let param = e.detail.value
+          console.log(param)
+          if (!param.mobile) {
+            Tips.success('请输入您的新号码')
+            return false
+          }
+          if (!param.captcha) {
+            Tips.success('请输入手机验证码')
+            return false
+          }
+          agentApi.updatePersonalMobile(param).then(res => {
+            if (res.code === 0) {
+              wepy.navigateBack({
+                delta: 1
+              })
+            }
+          })
+        }
+      };
+
+      events = {};
+
+      watch = {};
+
+      computed = {};
+
+      async onLoad () {
+    
+      };
+
+      onShow () { };
+    }
+</script>

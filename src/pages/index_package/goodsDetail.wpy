@@ -1,0 +1,641 @@
+<style lang="less">
+.goods_container {
+    width: 100%;
+    background:rgba(242,242,242,1);
+    position: relative;
+    padding-bottom: 104rpx;
+    .swiper-box {
+        position: relative;
+
+        .swiper {
+            width: 750rpx;
+            height: 750rpx;
+
+            .slide-image {
+                width: 750rpx;
+                height: 100%;
+            }
+        }
+
+        .dots-box {
+            position: absolute;
+            left: 50%;
+            bottom: 23rpx;
+            transform: translate(-50%, 0);
+            z-index: 1;
+            .dot-item {
+                width: 10rpx;
+                height: 10rpx;
+                background: #fff;
+                opacity: 0.4;
+                border-radius: 50%;
+                margin: 0 9rpx;
+            }
+            .dot-item.active {
+                width: 27rpx;
+                height: 10rpx;
+                opacity: 1;
+                margin: 0 5rpx;
+                border-radius: 5rpx;
+            }
+        }
+    }
+    .goods_detail {
+        background: white;
+        .goods_info {
+            // width: 691rpx;
+            // margin: 0 auto;
+            border-bottom: 12rpx solid rgba(242,242,242,1);
+            margin-bottom: 12rpx;
+            padding: 38rpx 26rpx;
+            .name {
+                font-size:32rpx;
+                font-weight:500;
+                color:rgba(34,34,34,1);
+                margin-bottom: 38rpx;
+            }
+            .info {
+                // width: 100%;
+                .price {
+                    font-size:30rpx;
+                    font-weight:400;
+                    color:rgba(204,0,0,1);
+                    margin-right: 21rpx;
+                }
+                .ship {
+                    width:54rpx;
+                    height:28rpx;
+                    border:1rpx solid #568512;
+                    border-radius:4rpx;
+                    font-size:20rpx;
+                    line-height:28rpx;
+                    text-align: center;
+                    font-weight:400;
+                    color:#568512;
+                }
+                .storage {
+                    font-size:24rpx;
+                    font-weight:400;
+                    color:#999999;
+                    justify-self: flex-end;
+                }
+            }
+        }
+        .goods_property {
+            border-bottom: 12rpx solid rgba(242,242,242,1);
+            padding: 38rpx 26rpx;
+            font-size: 28rpx;
+            &:first-child {
+                font-size:28rpx;
+                font-weight:400;
+                color:rgba(34,34,34,1);
+            }
+            .icon_more::before {
+                content: "\e60d";
+                font-size: 36rpx;
+                color: #CCCCCC;
+            }
+        }
+        .goods_introduce {
+            width: 100%;
+            .introduce_title {
+                font-size:32rpx;
+                font-weight:500;
+                color:rgba(34,34,34,1);
+                padding: 37rpx 26rpx;
+                vertical-align: center;
+                &::before {
+                    content: '';
+                    display: inline-block;
+                    vertical-align: center;
+                    margin-right: 20rpx;
+                    width:11rpx;
+                    height:32rpx;
+                    background:#84C257;
+                    border-radius:6rpx;
+                }
+            }
+            .introduce_content {
+                padding: 0 26rpx 26rpx 26rpx;
+            }
+        }
+    }
+    .goods_footer {
+        position: fixed;
+        bottom: 0;
+        background: white;
+        height: 105rpx;
+        border-top: 2rpx solid #CCCCCC;
+        z-index: 3;
+        .cart {
+            height: 100%;
+            min-width: 158rpx;
+            text-align: center;
+            border-right: 1px solid #CCCCCC;
+            background: white;
+            line-height: 105rpx;
+            position: relative;
+            .icon_cart::before {
+                content: "\e600";
+                font-size: 36rpx;
+                color: #CCCCCC;
+            }
+            .item_dot {
+                position: absolute;
+                width:28rpx;
+                height:28rpx;
+                background:rgba(204,0,0,1);
+                border-radius:50%;
+                text-align: center;
+                line-height: 28rpx;
+                font-size:18rpx;
+                font-family:PingFangSC;
+                font-weight:400;
+                color:rgba(255,255,255,1);
+                top: 18rpx;
+                left: 91rpx;
+            }
+        }
+        .cart_add {
+            line-height: 105rpx;
+            height: 100%;
+            text-align: center;
+            min-width: 296rpx;
+            font-size:28rpx;
+            font-weight:400;
+            color:rgba(34,34,34,1);
+        }
+        .order_submit {
+            line-height: 105rpx;
+            height: 100%;
+            min-width: 296rpx;
+            text-align: center;
+            background:#84C257;
+            font-size:28rpx;
+            font-weight:400;
+            color:rgba(255,255,255,1);
+        }
+    }
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .property_choose {
+        width: 100%;
+        // height: 498rpx;
+        background: white;
+        position: fixed;
+        bottom: -100%;
+        z-index: 3;
+        .property_content {
+            width: 100% * (700 / 750);
+            margin: 0 auto;
+            max-width: 700rpx;
+            padding: 38rpx 0;
+            .icon-delete::before {
+                content: "\e661";
+                font-size: 36rpx;
+                color: #CCCCCC;
+            }
+        }
+        .property_image {
+            max-width: 146rpx;
+            height: 116rpx;
+            margin-right: 37rpx;
+        }
+        .property_price {
+            font-size:36rpx;
+            font-weight:400;
+            color:rgba(204,0,0,1);
+            .choose_text {
+                font-size:24rpx;
+                font-weight:400;
+                color:rgba(0,34,34,1);
+            }
+        }
+        .property_list {
+            font-size:32rpx;
+            margin-top: 36rpx;
+            font-weight:400;
+            color:rgba(34,34,34,1);
+            .property_item {
+                margin-top: 24rpx;
+                margin-right: 20rpx;
+                padding: 0 15rpx;
+                height:54rpx;
+                border:1rpx solid rgba(204,204,204,1);
+                border-radius:4rpx;
+                line-height: 54rpx;
+                text-align: center;
+                font-size:28rpx;
+                font-weight:400;
+                color:rgba(153,153,153,1);
+            }
+            .active_item {
+                border:1px solid rgba(204,0,0,1);
+                color:rgba(204,0,0,1);
+            }
+        }
+        .property_count {
+            font-size:32rpx;
+            margin-top: 36rpx;
+            font-weight:400;
+            color:rgba(34,34,34,1);
+            .count_title {
+                margin-bottom: 24rpx;
+            }
+            .stepper {
+                margin-right: 38rpx;
+            }
+            .step {
+                text {
+                    font-size:24rpx;
+                    font-weight:400;
+                    color:rgba(153,153,153,1);
+                }
+            }
+        }
+        .cart_submit {
+            width: 100%;
+            height: 90rpx;
+            margin-top: 20rpx;
+            border-radius: 40rpx;
+            background: rgba(204,0,0,1);
+            color: white;
+            font-size: 28rpx;
+            text-align: center;
+            line-height: 90rpx;
+        }
+    }
+}
+</style>
+
+<template>
+    <view class="goods_container">
+        <view class="swiper-box">
+            <swiper class="swiper" indicator-dots="{{indicatorDots}}" circular autoplay="{{autoplay}}" interval="{{interval}}" duration="{{duration}}" @change="bindChange">
+                <repeat for="{{goodsDetail.pictureDOList}}" key="index" index="index" item="item">
+                    <swiper-item>
+                        <image src="{{item.mainPic}}" class="slide-image" mode="aspectFill" />
+                    </swiper-item>
+                </repeat>
+            </swiper>
+
+            <!-- 轮播图自定义指示器 -->
+            <view class="dots-box flex">
+                <repeat for="{{goodsDetail.pictureDOList}}" key="index" index="index" item="item">
+                    <view class="dot-item {{index === crrIndex ? 'active' : ''}}"></view>
+                </repeat>
+            </view>
+        </view>
+        <view class="goods_detail">
+            <view class="goods_info">
+                <view class="name">{{goodsDetail.name}}</view>
+                <view class="info flex flex-a-i-center flex-j-c-sb">
+                    <view class="info-left flex flex-a-i-center">
+                        <view class="price">￥{{goodsDetail.counterPrice}}</view>
+                        <view class="ship" wx:if='{{goodsDetail.activity}}'>{{ goodsDetail.activity }}</view>
+                    </view>
+                    <view class="storage" wx:if="{{goodsDetail.inventoryDOList[0].quantity}}">库存：{{goodsDetail.inventoryDOList[0].quantity}}</view>
+                </view>
+            </view>
+            <view class="goods_property flex flex-j-c-sb" wx:if="{{ goodsDetail.inventoryDOList.length !== 0 }}" @tap="showProperty">
+                <text>请选择规格属性</text>
+                <text class="iconfont icon_more"></text>
+            </view>
+            <view class="goods_introduce">
+                <view class="introduce_title">
+                    <text>商品介绍</text>
+                </view>
+                <view class="introduce_content">
+                    <rich-text nodes="{{ goodsDetail.detail }}"></rich-text>
+                    <!-- <repeat for="{{goods.detail}}" key="index" index="index" item="item">
+                        <image src="{{item}}" mode="widthFix"></image>
+                    </repeat>    -->
+                </view>
+            </view>
+        </view>
+        <footer></footer>
+        <!-- 选择属性 -->
+        <view class="property_choose" animation="{{ slide }}" catchtouchmove="ture">
+            <view class="property_content">
+                <view class="property_header flex flex-j-c-sb">
+                    <view class="flex" wx:if="{{property == ''}}">
+                        <image class="property_image" src="{{goodsDetail.picUrl}}" mode="aspectFill"></image>
+                        <view class="property_price">
+                            <view>￥{{goodsDetail.counterPrice}}</view>
+                            <view class="choose_text">请选择规格属性</view>
+                        </view>
+                    </view>
+                    <view class="flex" wx:else >
+                        <image class="property_image" src="{{specImg}}" mode="aspectFill"></image>
+                        <view class="property_price">
+                            <view>￥{{ specPrice }}</view>
+                            <view class="choose_text">{{property}}</view>
+                        </view>
+                    </view>
+                    <text class="iconfont icon-delete" catchtap="hide"></text>
+                </view>
+                <view class="property_list" wx:if="{{ goodsDetail.inventoryDOList.length !== 0 }}">
+                    <text>规格</text>
+                    <view class="flex flex-wrap">
+                        <repeat for="{{goodsDetail.inventoryDOList}}" key="index" index="index" item="item">
+                            <view data-property="{{ item.specification }}"
+                                data-quantity="{{item.quantity}}"
+                                data-price="{{item.counterPrice}}"
+                                data-main_pic="{{item.mainPic}}"
+                                data-id ="{{item.id}}"
+                                 class="property_item {{ specId === item.id ? 'active_item' : '' }}" catchtap="tapProperty">
+                                {{ item.specification }}
+                            </view>
+                        </repeat>
+                    </view>
+                </view>
+                <view class="property_count">
+                    <view class="count_title">数量</view>
+                    <view class="step flex flex-a-i-sb">
+                        <stepper
+                            :item.sync="goodsDetail"
+                            :specQuantity.sync="specQuantity"
+                            @countChange.user="countChange"
+                        />
+                        <text wx:if="{{ specQuantity >0 }}">(库存：{{ specQuantity}})</text>
+                    </view>
+                </view>
+                <!-- <view class="cart_submit" catchtap="submitOrder({{ goods }})">确定</view> -->
+            </view>
+        </view>
+        <view class="modal" wx:if="{{ showModal }}" catchtouchmove="true"></view>
+        <view class="goods_footer flex flex-j-c-sb">
+            <view class="cart" @tap="goPath('/pages/shoppingCar', 'st')">
+                <text class="iconfont icon_cart"></text>
+                <view class="item_dot" wx:if="{{ cartNumber > 0 }}">{{cartNumber}}</view>
+            </view>
+            <view class="cart_add" @tap="addCart">加入购物车</view>
+            <view class="order_submit" @tap="submit()">提交订单</view>
+        </view>
+    </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import Footer from '@/components/footer'
+import Stepper from '@/components/stepper'
+import { connect } from 'wepy-redux'
+import { util } from '@/utils/util.js'
+import goods from '@/apiJs/goods'
+import Tips from '@/utils/tips.js'
+import api from '@/apiJs/api.js'
+@connect({})
+export default class Index extends wepy.page {
+  config = {
+    navigationBarTitleText: '商品详情'
+  };
+
+  components = {
+    'footer': Footer,
+    'stepper': Stepper
+  };
+
+  data = {
+    indicatorDots: false,
+    autoplay: true,
+    interval: 5000,
+    duration: 1000,
+    crrIndex: 0,
+    specQuantity: 0, // 规格对应的库存
+    specPrice: '',
+    property: '',
+    specImg: '',
+    specId: '',  // 规格id
+        // animation
+    slide: {},
+    totalPrice: 0,
+    count: 1,
+    isOrder: 'select', // 什么按钮触发，select/add/order
+    id: 0,
+    showModal: false,
+    goodsDetail: [],
+    cartNumber: 0 // 购物车数量
+  };
+
+  computed = {};
+
+  methods = {
+        //  轮播图自定义指示器
+    bindChange (e) {
+      this.crrIndex = e.detail.current
+    },
+
+    goPath (...args) {
+      this.$parent.goPath(...args)
+    },
+        // 弹出选择属性
+    showProperty () {
+      this.animation.bottom('104rpx').step()
+      this.slide = this.animation.export()
+      this.isOrder = 'select'
+      this.showModal = true
+    },
+    addShow () {
+      this.animation.bottom('104rpx').step()
+      this.slide = this.animation.export()
+      this.isOrder = 'add'
+      this.showModal = true
+    },
+    hide () {
+      this.animation.bottom('-100%').step()
+      this.slide = this.animation.export()
+      this.showModal = false
+    },
+    countChange () {
+      this.totalPrice = (this.specPrice * this.goodsDetail.count).toFixed(2)
+    },
+        // 选择属性
+    tapProperty (e) {
+      let targets = e.target.dataset
+      this.property = targets.property
+      this.specQuantity = targets.quantity
+      if (this.specId === targets.id) {
+        this.specId = ''
+        this.property = ''
+        return false
+      }
+      this.specId = targets.id
+      this.specImg = targets.main_pic ? targets.main_pic : this.goodsDetail.picUrl
+      this.specPrice = (targets.price).toFixed(2)
+      this.totalPrice = (targets.price).toFixed(2)
+      if (targets.quantity !== null && targets.quantity !== 0) {
+        if (this.goodsDetail.count > targets.quantity) {
+          this.goodsDetail.count = targets.quantity
+        }
+      }
+    },
+        // 加入购物车
+    addCart () {
+      if (!api.toAuthor()) {
+        return false
+      }
+      if (!api.judgeAgentForbit()) {
+        return false
+      }
+      if (!api.judgeAgent()) {
+        return false
+      }
+      if (this.goodsDetail.inventoryDOList.length === 0) {
+        Tips.success('该宝贝暂不能购买')
+        return false
+      }
+      if (!this.showModal) {
+        this.animation.bottom('104rpx').step()
+        this.slide = this.animation.export()
+        this.isOrder = 'add'
+        this.showModal = true
+      } else {
+        if (!this.property && this.goodsDetail.inventoryDOList.length !== 0) {
+          if (this.showModal) {
+            Tips.success('请选择规格属性再点击加入购物车')
+          }
+          this.animation.bottom('104rpx').step()
+          this.slide = this.animation.export()
+          this.isOrder = 'add'
+          this.showModal = true
+        } else {
+          var param_data = {
+            goodsId: this.id,
+            number: this.goodsDetail.count,
+            specifications: this.specId
+          }
+          goods.addCart(param_data).then(res => {
+            if (Number(res.code) === 0) {
+              this.animation.bottom('-100%').step()
+              this.slide = this.animation.export()
+              this.showModal = false
+              this.getCarCount()
+              Tips.addSuccess('加添购物车成功！')
+            } else if (Number(res.code) === 200) {
+              Tips.success('抱歉，库存不足')
+            }
+          })
+        }
+      }
+    },
+
+        // 提交订单按钮
+    async submit () {
+      if (!api.toAuthor()) {
+        return false
+      }
+      if (!api.judgeAgentForbit()) {
+        return false
+      }
+      if (!api.judgeAgent()) {
+        return false
+      }
+      if (this.goodsDetail.inventoryDOList.length === 0) {
+        Tips.success('该宝贝暂不能购买')
+        return false
+      }
+      if (!this.showModal) {
+        this.animation.bottom('104rpx').step()
+        this.slide = this.animation.export()
+        this.isOrder = 'add'
+        this.showModal = true
+      } else {
+        if (!this.property && this.goodsDetail.inventoryDOList.length !== 0) {
+          if (this.showModal) {
+            Tips.success('请选择规格属性')
+          }
+          this.animation.bottom('104rpx').step()
+          this.slide = this.animation.export()
+          this.isOrder = 'add'
+          this.showModal = true
+        } else {
+          if (this.specQuantity < this.goodsDetail.count) {
+            Tips.success('抱歉,库存不足')
+            return false
+          }
+          var arr = []
+          var json = {
+            specificationId: this.specId,
+            goodsId: this.id,
+            number: this.goodsDetail.count,
+            specImg: this.specImg,
+            property: this.property,
+            specPrice: this.specPrice,
+            totalPrice: (this.goodsDetail.count * this.specPrice).toFixed(2),
+            name: this.goodsDetail.name
+          }
+          console.log(json)
+          arr.push(json)
+          this.$parent.globalData.buyGoodsList = arr
+          this.animation.bottom('-100%').step()
+          this.slide = this.animation.export()
+          this.showModal = false
+          this.$parent.goPath('/pages/index_package/orderConfirm?isType=1')
+        }
+      }
+    }
+  };
+
+  events = {
+
+  };
+
+  async onLoad (options) {
+    Tips.loading()
+        // 商品id
+    this.id = options.id
+    this.getGoodsInfo(this.id)
+    this.getCarCount()
+  }
+
+  async onShow () {
+    var animation = wx.createAnimation({
+      duration: 300,
+      timingFunction: 'linear',
+      delay: 0
+    })
+    this.animation = animation
+  }
+    // 获取商品详情
+  getGoodsInfo (id) {
+    var data = {
+      id: id
+    }
+    Tips.loading()
+    goods.getGoodsInfo(data).then((res) => {
+      this.goodsDetail = res.data
+      this.goodsDetail.counterPrice = (this.goodsDetail.counterPrice).toFixed(2)
+      this.goodsDetail.count = this.count
+      this.goodsDetail.detail = this.goodsDetail.detail.replace(/\<img/gi, '<img style="max-width:100%;height:auto" ')
+      if (res.data.inventoryDOList.length > 0) {
+        this.specQuantity = res.data.inventoryDOList[0].quantity
+        this.specPrice = res.data.inventoryDOList[0].counterPrice
+        this.totalPrice = (res.data.inventoryDOList[0].counterPrice).toFixed(2)
+      } else {
+        this.specQuantity = ''
+        this.specPrice = ''
+        this.totalPrice = (Number(res.data.counterPrice)).toFixed(2)
+      }
+
+      this.$apply()
+      Tips.loaded()
+    })
+  }
+    // 获取用户购物车商品的数量
+  getCarCount () {
+    goods.getcount().then((res) => {
+      this.cartNumber = res.data
+      this.$apply()
+    })
+  }
+}
+</script>

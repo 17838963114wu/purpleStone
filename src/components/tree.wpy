@@ -1,0 +1,180 @@
+<style lang='less'>
+
+.tree_root, .tree_item {
+    width: 100%;
+    padding: 29rpx 26rpx;
+    border-bottom: 1px solid rgba(242,242,242,1);
+    .pick_icon {
+        margin-right: 24rpx;
+    }
+    .tree_left {
+        image {
+            width: 34rpx;
+            height: 34rpx;
+        }
+        .tree_user {
+            font-size:30rpx;
+            font-family:PingFangSC;
+            font-weight:400;
+            color:rgba(34,34,34,1);
+            image {
+                width:54rpx;
+                height:54rpx;
+                border-radius:50%;
+                margin-right: 17rpx;
+            }
+        }
+    }
+    .tree_right {
+        .position {
+            font-size:22rpx;
+            font-family:PingFangSC;
+            font-weight:400;
+            color:rgba(102,102,102,1);
+        }
+        .item_right {
+            font-size:24rpx;
+            font-family:PingFangSC;
+            font-weight:400;
+            color:rgba(255,255,255,1);
+            .number {
+                margin-right: 28rpx;
+            }
+            .superior {
+                width:44rpx;
+                line-height: 40rpx;
+                text-align: center;
+                height:40rpx;
+                background:#84C257;
+                opacity:0.4;
+                border-radius:18rpx 0px 0px 18rpx;
+            }
+            .sub {
+                width:44rpx;
+                height:40rpx;
+                line-height: 40rpx;
+                text-align: center;
+                background:rgba(34,34,34,1);
+                opacity:0.4;
+                border-radius:0px 20rpx 20rpx 0px;
+            }
+        }
+        .active_num {
+            .superior, .sub {
+                opacity: 1;
+            }
+        }
+    }
+}
+.rich_text{
+    width: 200rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+</style>
+<!--  -->
+<template>
+    <view class='container'>
+        <view class="tree_root tree_item flex flex-j-c-sb flex-a-i-center">
+            <view class="tree_left flex flex-a-i-center">
+                <image class="pick_icon" src="/assets/images/proxyCenter/myself_team_pick.png" mode="aspectFit"
+                lazy-load="false" wx:if="{{ treeList.showChild }}" @tap="showSub({{ treeList }})">
+                </image>
+                <image class="pick_icon" src="/assets/images/proxyCenter/myself_team_open.png" mode="aspectFit"
+                lazy-load="false" @tap="showSub({{ treeList }})" wx:else>
+                </image>
+                <view class="tree_user flex flex-a-i-center" @tap="goPath({{ treeList.authorization }})" >
+                    <image src="{{ treeList.avatar }}" mode="aspectFit"
+                    lazy-load="false">
+                    </image>
+                    <rich-text class="rich_text" nodes="{{treeList.text}}"></rich-text>
+                </view>
+            </view>
+            <view class="tree_right flex flex-a-i-center">
+                <view class="position">（{{ treeList.authorization }}）</view>
+                <view class="item_right flex flex-a-i-center">
+                    <view class="flex number active_num">
+                        <view class="superior">{{treeList.children.length}}</view>
+                        <view class="sub">{{ treeList.children.length + treeList.twoChild||0}}</view>
+                    </view>
+                </view>
+            </view>
+        </view>
+        
+        <repeat for="{{children}}" key="index" index="index" item="item">
+            <item :children="item" wx:if="{{treeList.showChild}}" @childShowSub.user="childShowSub"></item>
+            <repeat for="{{item.children}}" key="index1" index="index1" item="item1">
+                <item1 :children="item1" wx:if="{{item.showChild}}"></item1>
+            </repeat>
+        </repeat>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import TreeItem from './treeItem'
+    export default class Tree extends wepy.component {
+      props = {
+        treeList: {
+          type: Object,
+          twoWay: true
+        }
+      };
+
+      data = {
+        children: [],
+        children1: [],
+        // showChild: false,
+        // 第几层
+        level: 0,
+        totalxia: ''
+      };
+
+      components = {
+        'item': TreeItem,
+        'item1': TreeItem
+      };
+
+      methods = {
+        showSub (node) {
+          if (this.treeList.children.length) {
+            this.children = this.treeList.children
+            if (this.treeList.children[0].children.length) {
+              this.children1 = this.treeList.children[0].children
+            }
+            this.treeList.showChild = !this.treeList.showChild
+            if (this.treeList.showChild) {
+              this.level++
+            } else {
+              this.level--
+            }
+          }
+        },
+        childShowSub (num) {
+          this.treeList.children[num - 1].showChild = !this.treeList.children[num - 1].showChild
+        },
+        // 跳转
+        goPath (authorization) {
+          wepy.navigateTo({ url: '/pages/agent_package/agentDetail?authorization=' + authorization})
+        }
+      };
+
+      events = {};
+
+      watch = {};
+
+      computed = {};
+
+      onLoad () {
+        // this.treeList.showChild = false
+        // this.treeList.children.forEach(item => {
+        //   item.showChild = false
+        // })
+        // this.children = this.treeList.children
+        // this.children1 = this.treeList.children[0].children
+      }
+
+      onShow () { };
+    }
+</script>

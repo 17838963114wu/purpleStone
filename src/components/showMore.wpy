@@ -1,0 +1,70 @@
+<template>
+    <view class="modal-container">
+      <view class='bottom_jiazai' wx:if='{{moreType == 1}}'>
+        <image src='/assets/images/loadmore.gif'></image>
+        <text>加载中...</text>
+      </view>
+      <view class='bottom_jiazai' wx:if='{{moreType == 2}}'>
+        <view></view>
+        <text class='no'>已经没有更多了~</text>
+      </view>
+    </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+export default class ShowMore extends wepy.component {
+    props = {
+      moreType: {
+        type: Number,
+        twoWay: true
+      }
+    };
+
+    data = {};
+
+    components = {};
+
+    methods = {
+
+    };
+
+    events = {};
+  }
+</script>
+
+<style lang='less'>
+.bottom_jiazai image {
+  width: 30rpx;
+  height: 30rpx;
+  vertical-align: middle;
+  margin-top: -5rpx;
+  margin-right: 10rpx;
+}
+
+.bottom_jiazai {
+  position: relative;
+  font-size: 12px;
+  text-align: center;
+  color: #999;
+  line-height: 100rpx;
+  z-index: 1;
+  background: #fff;
+}
+
+.bottom_jiazai view {
+  position: absolute;
+  width: 75%;
+  height: 1px;
+  background: #f2f2f2;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  z-index: -1;
+}
+
+.bottom_jiazai .no {
+   padding: 0px 20rpx;
+   background: #fff;
+}
+</style>

@@ -1,0 +1,197 @@
+.border {
+    border-bottom: 13rpx solid #f2f2f2;
+}
+
+page {
+  background-color: #fff;
+  min-height: 100vh;
+  height: 100%;
+}
+
+.container {
+  //   min-height: 100vh;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+@gb_color: #78B43A;
+
+view,
+button,
+input,
+scroll-view,
+swiper-item,
+swiper,
+image,
+scroll-view,
+cover-view,
+movable-area,
+checkbox-group,
+video,
+checkbox,
+picker-view,
+picker,
+radio-group,
+radio,
+label,
+textarea {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  border: none;
+  min-height: auto;
+}
+
+button {
+  background: transparent;
+  line-height: 0;
+}
+
+button::after {
+  border: none;
+}
+
+button[disabled]:not([type]) {
+  background-color: transparent;
+}
+
+.button-hover {
+  background: #fff;
+}
+
+.placeholder-class {
+  font-family: 'PingFangSC';
+  color: #999999;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-a-i-center {
+  align-items: center;
+}
+
+.flex-a-i-start {
+  align-items: flex-start;
+}
+
+.flex-a-i-baseline {
+  align-items: baseline;
+}
+
+.flex-a-c-sb {
+  align-content: space-between;
+}
+
+.flex-j-c-center {
+  justify-content: center;
+}
+
+.flex-j-c-sb {
+  justify-content: space-between;
+}
+
+.flex-j-c-sa {
+  justify-content: space-around;
+}
+
+.flex-j-c-e {
+  justify-content: flex-end;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ellipsis2 {
+  //多行文本溢出
+  overflow: hidden;
+  text-overflow: ellipsis; //文本溢出显示省略号
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-all;
+}
+
+.ellipsis-more {
+  //多行文本溢出
+  overflow: hidden;
+  text-overflow: ellipsis; //文本溢出显示省略号
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.bg-cover {
+  background-size: cover;
+  background-position: center center;
+}
+
+.center {
+  text-align: center;
+}
+.right {
+  text-align: right;
+}
+
+/* 动画上拉 */
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.5s;
+}
+
+.slide-up-enter,
+.slide-up-leave-to {
+  transform: translateY(100%);
+}
+
+/* 蒙版 */
+.modal {
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+}
+
+.line {
+  height: 12rpx;
+  width: 100%;
+  background-color: #f2f2f2;
+}
+
+@font-face {
+  font-family: 'iconfont';  /* project id 911523 */
+  src: url('//at.alicdn.com/t/font_911523_x0z4699k01.eot');
+  src: url('//at.alicdn.com/t/font_911523_x0z4699k01.eot?#iefix') format('embedded-opentype'),
+  url('//at.alicdn.com/t/font_911523_x0z4699k01.woff') format('woff'),
+  url('//at.alicdn.com/t/font_911523_x0z4699k01.ttf') format('truetype'),
+  url('//at.alicdn.com/t/font_911523_x0z4699k01.svg#iconfont') format('svg');
+}
+
+.iconfont {
+  font-family: "iconfont";
+  font-size: 36rpx;
+  font-style: normal;
+  color: #9e9595;
+}
+/* 封装11 不出现滚动条 */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  color: transparent;
+}
+
+.no_goods {
+  color: #888;
+  text-align: center;
+  padding: 100rpx 0;
+}

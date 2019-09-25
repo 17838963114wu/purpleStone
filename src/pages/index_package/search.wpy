@@ -1,0 +1,235 @@
+<style lang="less">
+.container {
+    padding-top: 106rpx;
+    .search-box{
+        height: 106rpx;
+        align-items: center;
+        padding: 0 24rpx;
+        font-size: 28rpx;
+        border-bottom: 1rpx solid #eeeeee;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        background: #fff;
+        .search{
+            width:606rpx;
+            height:66rpx;
+            background:rgba(242,242,242,1);
+            border-radius:33rpx;
+            align-items: center;
+            position: relative;
+            .search-icon{
+                width: 28rpx;
+                height: 28rpx;
+                margin-left: 36rpx;
+                margin-right: 5rpx;
+            }
+            input{
+                width: 470rpx;
+            }
+            .del_key{
+              position: absolute;
+              width: 50rpx;
+              height: 50rpx;
+              right: 10rpx;
+              border: 5rpx solid rgba(242,242,242,1);
+            }
+
+        }
+        .search-btn{
+            color: #568512;
+            padding-left: 30rpx;
+            height: 100%;
+            line-height: 106rpx;
+        }
+    }
+    .hot-box{
+        font-size: 28rpx;
+        color: #333;
+        padding: 0 25rpx;
+        .hot-title{
+            line-height: 108rpx;
+            font-weight: 500;
+        }
+        .hot-item{
+            height: 64rpx;
+            line-height: 64rpx;
+            padding: 0 45rpx;
+            border-radius: 32rpx;
+            background: #F2F2F2;
+            margin:0 24rpx 24rpx 0;
+            display: inline-block;
+        }
+    }
+
+    .list_container {
+        padding-top: 45rpx;
+    }
+
+}
+</style>
+
+<template>
+    <view class="container">
+        <view class="search-box flex">
+            <view class="search flex ">
+                <image class="search-icon" src="/assets/images/index/search_icon.png" ></image>
+                <input bindconfirm="search" confirm-type="search" @input="changeInput" placeholder="请输入您所搜索的商品" placeholder-class="placeholder-class" value="{{keywords}}"></input>
+                <image wx:if="{{keywords}}" class='del_key' src='/assets/images/close.png' @tap='delKey'></image>
+            </view>    
+            <view class="search-btn" @tap="search">搜索</view>
+        </view>
+        
+        <!-- 热门搜索 -->
+        <view class="hot-box" wx:if="{{!isSearch}}">
+            <view class="hot-title">热门搜索</view>
+            <repeat for="{{hotList}}" key="index" index="index" item="item">
+                <view class="hot-item {{hotCurrent==index?'hot-acitve':''}}" @tap="selectHot({{index}})">{{item.value}}</view>
+            </repeat>
+        </view>
+
+        <view class="list_container flex flex-wrap flex-j-c-sb" wx:if="{{isSearch && list.length>0}}">
+             <h-list :list.sync="list" />
+        </view>
+
+        <!-- 加载更多 -->
+        <show-more :moreType.sync='moreType'></show-more>
+
+        <!-- <footer /> -->
+    </view>     
+</template>
+
+<script>
+import wepy from 'wepy'
+import index from '@/apiJs/index'
+import search from '@/apiJs/search'
+import hList from '@/components/hList'
+import showMore from '@/components/showMore'
+import Tips from '@/utils/tips.js'
+// import Footer from '@/components/footer';
+export default class Search extends wepy.page {
+  config = {
+    navigationBarTitleText: '搜索商品'
+  }
+
+  components = {
+    'h-list': hList,
+    'show-more': showMore
+  }
+
+  data = {
+    hotList: [],
+    hotCurrent: null,
+    keywords: '',
+    isSearch: false, // 是否已经点击了搜索
+    list: [],
+    offset: 0,
+    limit: 10,
+    moreType: '',
+    switch: true
+  }
+
+  computed = {}
+
+  methods = {
+    goPath (url) {
+      this.$parent.goPath(url)
+    },
+        // 输入关键词
+    changeInput (e) {
+      this.isSearch = false
+      this.moreType = ''
+      this.keywords = e.detail.value
+      if (!e.detail.value) {
+      }
+    },
+    // 删除
+    delKey () {
+      this.keywords = ''
+    },
+        // 选择热门搜索
+    selectHot (index) {
+      this.hotCurrent = index
+      this.keywords = this.hotList[index].value
+    },
+
+        // 搜索
+    search () {
+      if (!this.keywords) {
+        Tips.success('请输入关键词再点击搜索')
+        return false
+      }
+      this.isSearch = true
+      Tips.loading()
+      this.offset = 0
+      this.getList()
+    }
+  }
+
+  async onLoad (option) {
+    this.getHotkeywords()
+  }
+
+  onReachBottom () {
+    if (this.switch) {
+      this.getList()
+    }
+  }
+    // 获取商品列表
+  getList () {
+    this.switch = false
+    var data = {
+      offset: this.offset,
+      limit: this.limit,
+      searchName: this.keywords
+    }
+    index.getListBySelect(data).then((res) => {
+      if (res.data.rows.length >= 0 && res.data.rows.length < 10) {  // 已无数据
+        this.moreType = 2
+        this.switch = false
+      } else {
+        this.moreType = 1
+        this.switch = true
+      }
+      if (this.offset === 0) {
+        this.isToFixed(res.data.rows)
+        this.list = res.data.rows
+        if (res.data.rows.length === 0) {
+          Tips.loaded()
+          Tips.success('抱歉，暂时没有找您的商品，您可以换个关键词试试', 2000)
+          this.isSearch = false
+          this.moreType = ''
+        }
+      } else {
+        if (res.data.rows.length > 0) {
+          this.isToFixed(res.data.rows)
+          this.list = this.list.concat(res.data.rows)
+        }
+      }
+      // this.list.forEach((item) => {
+      //   item.counterPrice = (Number(item.counterPrice)).toFixed(2)
+      // })
+      this.offset += 10
+      this.$apply()
+      Tips.loaded()
+    })
+  }
+
+    // 获取热搜词
+  getHotkeywords () {
+    search.hotsearchdata().then(res => {
+      this.hotList = res.data
+      this.$apply()
+    })
+  }
+  // toFixed
+  isToFixed (arr) {
+    console.log(arr)
+    arr.forEach((item) => {
+      item.counterPrice = (Number(item.counterPrice)).toFixed(2)
+    })
+  }
+}
+</script>

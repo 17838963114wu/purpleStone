@@ -1,0 +1,345 @@
+<style lang='less'>
+page{
+    background: #EFF1F4;
+}
+.container {
+    position: relative;
+    margin-top: 12rpx;
+    border-bottom: 135rpx solid #EFF1F4;
+}
+.list {
+    background-color: #fff;
+    .item {
+        width: 750rpx;
+        position: relative;
+        .item_transition {
+            position: relative;
+            background: white;
+            z-index: 5;
+            width: 100%;
+            transition: left 0.1s ease-in-out;
+            // z-index: 2;
+        }
+        label {
+            display: block;
+            width: 80rpx;
+            height: 100%;
+            margin-left: 24rpx;
+            // width: 42rpx;
+            // height: 42rpx;
+            // border: 1rpx solid rgba(204, 204, 204, 1);
+            // border-radius: 50%;
+            // margin-top: 60rpx;
+
+            checkbox {
+                display: none;
+            }
+
+            .disable {
+                display: block;
+                width: 42rpx;
+                height: 42rpx;
+                border-radius: 50%;
+                border: 1rpx solid rgba(204, 204, 204, 1);
+                margin-top: 60rpx;
+            }
+            image {
+                display: none;
+                width: 42rpx;
+                height: 42rpx;
+                margin-top: 60rpx;
+            }
+        }
+
+        .item-right {
+            height: 100%;
+            padding: 40rpx 0;
+            padding-right: 25rpx;
+            border-bottom: 1rpx solid #E5E5E5;
+            flex: 1;
+            .people_info {
+                font-size:28rpx;
+                font-weight:400;
+                color:rgba(49,49,49,1);
+                .people_phone{
+                    padding-left: 20rpx;
+                }
+            }
+            .location {
+                font-size:24rpx;
+                font-weight:400;
+                color:rgba(153,153,153,1);
+                margin-right: 63rpx;
+                margin-top: 25rpx;
+            }
+            .item_content {
+                width: 525rpx;
+            }
+        }
+        .edit{
+            width: 34rpx;
+            height: 34rpx;
+            margin: 20rpx 0;
+        }
+
+        .delete_item_btn {
+            position: absolute;
+            right: 0;
+            width: 122rpx;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 4;
+            height: 100%;
+            background: rgba(224,102,102,1);
+            .delete_icon::before {
+                content: "\e619";
+                font-size: 36rpx;
+                color: white;
+            }
+        }
+    }
+    .item.active {
+        label {
+            border: none;
+
+            image {
+                display: block;
+            }
+
+            .disable {
+                display: none;
+            }
+        }
+    }
+}
+
+.address_add {
+	position: fixed;
+    bottom: 0;
+    z-index: 6;
+	width: 100%;
+    padding-right: 25rpx;
+    background: white;
+	.add_title {
+		padding: 39rpx 25rpx;
+		font-size: 28rpx;
+		font-weight: 400;
+		color: rgba(49, 49, 49, 1);
+		view {
+			margin-left: 28rpx;
+		}
+	}
+    .add_icon{
+        width: 42rpx;
+        height: 42rpx;
+    }
+
+	.icon_more::before {
+		content: "\e60d";
+		color: #CCCCCC;
+	}
+}
+</style>
+
+<template>
+  	<view class='container'>
+      	<checkbox-group @change="checkboxChange" class="list">
+			<repeat for="{{items}}" key="index" index="index" item="item">
+				<view class="item flex {{index == itemCurrent ? 'active' : ''}}">
+					<view class="item_transition flex flex-a-i-center"
+                        bindtouchstart="touchStart"
+                        bindtouchmove="touchMove"
+                        bindtouchend="touchEnd"
+						style="{{ item.delStyle }}"
+						data-index="{{ index }}"
+					>
+						<label catchtap="select({{ item }},{{index}})">
+							<view class="disable"></view>
+							<image src="/assets/images/shoppingCar/circle_click.png" mode="" />
+							<checkbox value="{{item.id}}" checked="{{item.checked}}" />
+						</label>
+						<view class="item-right flex flex-a-i-center flex-j-c-sb">
+							<view class="item_content">
+								<view class="people_info flex">
+									<view class="people_name">{{ item.name }}</view>
+									<view class="people_phone">{{ item.mobile }}</view>
+								</view>
+								<view class="location ellipsis2">
+									收货地址：{{item.provinces}}{{item.cities}}{{item.areas}} {{ item.address }}
+								</view>
+							</view>
+							<view class="icon" catchtap="modify({{index}})">
+                                <image class="edit" src="/assets/images/order/gwc_order_edit_icon.png"></image>
+                            </view>
+						</view>
+					</view>
+					<view class='delete_item_btn' bindtap="delete({{index}})" data-index="{{ index }}">
+						<text class="iconfont delete_icon"></text>
+					</view>
+				</view>
+			</repeat>
+		</checkbox-group>
+        <view class="address_add flex flex-j-c-sb flex-a-i-baseline" @tap="addAddress">
+            <view class="add_title flex flex-a-i-center">
+                <image class="add_icon" src="/assets/images/order/gwc_order_add_icon.png"></image>
+                <view>新增收货地址</view>
+            </view>
+            <view>
+                <text class="iconfont icon_more"></text>
+            </view>
+        </view>
+  	</view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+import Tips from '@/utils/tips.js'
+    import order from '@/apiJs/order'
+    import address from '@/apiJs/address'
+    export default class SelectAddress extends wepy.page {
+      config = {
+        navigationBarTitleText: '选择收货地址'
+      };
+
+      data = {
+        itemCurrent: null,
+        items: [],
+        delWidth: 122,
+        itemTouch: {
+          startX: 0,
+          moveX: 0,
+          endX: 0,
+          delStyle: ''
+        }
+      };
+
+      components = {};
+
+      methods = {
+        checkboxChange: function (e) {
+    
+        },
+        async select (item, index) {
+          console.log(item)
+          this.itemCurrent = index
+          var addDetails = await address.getAddressById({addressId: item.id})
+          console.log(addDetails.data)
+          var paramData = {
+            name: item.name,
+            provinceId: addDetails.data.provinceId,
+            cityId: addDetails.data.cityId,
+            areaId: addDetails.data.areaId,
+            address: item.address,
+            mobile: item.mobile,
+            isDefault: '1',
+            id: item.id
+          }
+          this.updatedAddress(paramData)
+          // var address = `${item.provinces}${item.cities}${item.areas} ${item.address}`
+        },
+        addAddress () {
+                // this.$parent.goPath('/pages/index_package/addAddress', 'rd')
+          wepy.navigateTo({
+            url: '/pages/index_package/addAddress?isType=1'
+          })
+        },
+            // 修改
+        modify (index) {
+          wepy.navigateTo({
+            url: '/pages/index_package/addAddress?isType=2&index=' + index
+          })
+        },
+            // 删除
+        delete (index) {
+          let paramData = {
+            addressId: this.items[index].id
+          }
+          var that = this
+          Tips.confirm('您确定要删除当前的收货地址吗？').then(res => {
+            address.delAddress(paramData).then(res => {
+              that.items.splice(index, 1)
+              that.$apply()
+            })
+          })
+        },
+            // 左滑动删除
+        touchStart (e) {
+          if (e.touches.length === 1) {
+            this.itemTouch.startX = e.touches[0].clientX
+          }
+        },
+        touchMove (e) {
+          if (e.touches.length === 1) {
+            console.log('dddddd')
+            var moveX = e.touches[0].clientX
+            var distance = this.itemTouch.startX - moveX
+            var transition = 0
+            if (distance === 0 || distance < 0) {
+              transition = 0
+            } else if (distance < this.delWidth) {
+              transition = distance
+            } else if (distance > this.delWidth) {
+              transition = this.delWidth
+            }
+          }
+          var index = e.currentTarget.dataset.index
+          this.items[index].delStyle = 'left: -' + transition + 'rpx'
+        },
+        touchEnd (e) {
+          var transition = 0
+          if (e.changedTouches.length === 1) {
+            var endX = e.changedTouches[0].clientX
+            var endDistance = this.itemTouch.startX - endX
+            if (endDistance > this.delWidth >> 1) {
+              transition = this.delWidth
+            } else {
+              transition = 0
+            }
+          }
+          var index = e.currentTarget.dataset.index
+          this.items[index].delStyle = 'left: -' + transition + 'rpx'
+        }
+      };
+
+      events = {};
+
+      watch = {};
+
+      computed = {};
+
+      async onLoad () {
+    
+      };
+
+      onShow () {
+        Tips.loading()
+        this.getAddressList()
+      };
+        // 获取地址列表
+      getAddressList () {
+        order.addressList().then(res => {
+          this.items = res.data
+          this.items.forEach((item, index) => {
+            if (item.isDefault === 1) {
+              this.itemCurrent = index
+            }
+          })
+          this.$apply()
+          Tips.loaded()
+        })
+      }
+        // 更新地址
+      updatedAddress (data) {
+        address.addressUpdate(data).then(res => {
+          if (res.code === 0) {
+            setTimeout(() => {
+              wepy.navigateBack({
+                delta: 1
+              })
+            }, 300)
+          }
+        })
+      }
+    }
+</script>

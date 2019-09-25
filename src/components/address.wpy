@@ -1,0 +1,139 @@
+<style lang='less'>
+  .address {
+		background: #fff;
+	.address_selected {
+		padding: 31rpx 25rpx;
+		font-size: 28rpx;
+		font-weight: 400;
+		color: rgba(49, 49, 49, 1);
+		border-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAvAAAAAIBAMAAABt1tYUAAAAMFBMVEXp0tTc5erq6urn6Orl4+Su5P/7bHq25fz7+/z5e4f////96eve8/39vcT7dIL7l6HhX6tQAAAABXRSTlP29vb2sJ7cEOIAAAC/SURBVEjHY3BWUhbEBoSVYECZAStAyI/qJ10/C4NFR085NlDTAQPdP2diAfN3wORH9ZOhfwKDxqoVpaFYQHjXKihYcS0NC8jcBZcf1U+6/geggD9KQONObBan3YDLj+onXT8oxa86jk1j6AmYxlX7sVr8Gy4/qp90/eCAX45VYwVc49pn2CyeC5cf1U+6/gfAyhV77VCKVDvMw1I7zJvbgbd2GdWPT/+8CQzOSkrGBNpDStjbU0Yw6VH9pOtnAQDI1IMfzNR1SAAAAABJRU5ErkJggg==") 0% 0% 100% 0% round;
+		border-top:0;
+		border-left:0;
+		border-right:0;
+		border-bottom: 5rpx solid #CCCCCC;
+		.address_info {
+			margin-left: 25rpx;
+			width: 600rpx;
+		}
+		.location {
+			margin-top: 11rpx;
+			font-size:24rpx;
+			font-weight:400;
+			color:rgba(153,153,153,1);
+		}
+		.icon_location::before {
+			content: '\e7fc';
+		}
+		.icon_more::before {
+			content: "\e60d";
+			color: #CCCCCC;
+		}
+		.address_icon{
+			width: 20rpx;
+			height: 26rpx;
+			margin-top: 15rpx;
+		}
+	}
+
+	.address_add {
+		border-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAvAAAAAIBAMAAABt1tYUAAAAMFBMVEXp0tTc5erq6urn6Orl4+Su5P/7bHq25fz7+/z5e4f////96eve8/39vcT7dIL7l6HhX6tQAAAABXRSTlP29vb2sJ7cEOIAAAC/SURBVEjHY3BWUhbEBoSVYECZAStAyI/qJ10/C4NFR085NlDTAQPdP2diAfN3wORH9ZOhfwKDxqoVpaFYQHjXKihYcS0NC8jcBZcf1U+6/geggD9KQONObBan3YDLj+onXT8oxa86jk1j6AmYxlX7sVr8Gy4/qp90/eCAX45VYwVc49pn2CyeC5cf1U+6/gfAyhV77VCKVDvMw1I7zJvbgbd2GdWPT/+8CQzOSkrGBNpDStjbU0Yw6VH9pOtnAQDI1IMfzNR1SAAAAABJRU5ErkJggg==") 0% 0% 100% 0% round;
+		border-top:0;
+		border-left:0;
+		border-right:0;
+		border-bottom: 5rpx;
+		padding-right: 5rpx;
+
+		.add_title {
+			padding: 39rpx 25rpx;
+			font-size: 28rpx;
+			font-weight: 400;
+			color: rgba(49, 49, 49, 1);
+
+			view {
+			margin-left: 28rpx;
+			}
+		}
+		.add_icon{
+			width: 42rpx;
+			height: 42rpx;
+		}
+		.icon_more::before {
+			content: "\e60d";
+			color: #CCCCCC;
+		}
+	}
+  }
+
+</style>
+
+<template>
+  	<view class='address'>
+		<view class="address_selected flex flex-j-c-sb flex-a-i-center" wx:if="{{ hasAddress }}" @tap="selectAddress">
+			<view class="flex">
+				<image class="address_icon" src="/assets/images/order/gwc_order_dizhi_icon.png"></image>
+				<view class="address_info"> 
+					<view class="people_info flex flex-j-c-sb">
+						<view class="name">收货人：{{ name }}</view>
+						<view class="phone">{{ phone }}</view>
+					</view>
+					<view class="location">收货地址：{{ address }}</view>
+				</view>
+			</view>
+			<text class="iconfont icon_more" wx:if="{{isGo}}"></text>
+		</view>
+		<view class="address_add flex flex-j-c-sb flex-a-i-baseline" wx:else @tap="addressAdd">
+			<view class="add_title flex flex-a-i-center">
+				<image class="add_icon" src="/assets/images/order/gwc_order_add_icon.png"></image>
+				<view>新增收货地址</view> 
+			</view>
+			<view>
+				<text class="iconfont icon_more"></text>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+export default class Address extends wepy.component {
+    props = {
+      hasAddress: {
+        type: Boolean,
+        twoWay: true
+      },
+      name: String,
+      address: String,
+      phone: String,
+      isGo: {
+        type: Boolean,
+        default: true
+      }
+    };
+
+    data = {};
+
+    components = {};
+
+    methods = {
+      selectAddress () {
+        this.$emit('selectAddress', '/pages/index_package/selectAddress')
+      },
+      addressAdd () {
+        this.$parent.$parent.goPath('/pages/index_package/addAddress?isType=1')
+      }
+    };
+
+    events = {};
+
+    watch = {};
+
+    computed = {};
+
+    onLoad () {
+
+    };
+
+    onShow () {};
+  }
+
+</script>

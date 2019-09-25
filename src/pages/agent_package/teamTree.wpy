@@ -1,0 +1,95 @@
+
+<style lang='less'>
+page{
+    background: #F2F2F2;
+}
+.note {
+    height:74rpx;
+    width: 100%;
+    background:#F2F9EE;
+    font-size:24rpx;
+    font-family:PingFangSC;
+    font-weight:400;
+    color:#666666;
+    padding-left: 24rpx;
+    line-height: 74rpx;
+    border-bottom: 12rpx solid #F2F2F2;
+    .note_green {
+        color:#568512;
+    }
+    .note_black {
+        color: black;
+    }
+}
+</style>
+<!--  -->
+<!-- TODO: 添加level、number字段 -->
+<template>
+    <view class='container'>
+        <view class="note">
+            <text class="note_green">绿色</text>
+            <text>是一级代理人数，</text>
+            <text class="note_black">灰色</text>
+            <text>是所属的代理总人数</text>
+        </view>
+        <tree :treeList.sync="treeList"></tree>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import agentApi from '@/apiJs/agentApi.js'
+    import Tree from '@/components/tree'
+    export default class TeamTree extends wepy.page {
+      config = {
+        navigationBarTitleText: '团队管理'
+      };
+
+      data = {
+        treeList: {},
+        list: {}
+      };
+
+      components = {
+        'tree': Tree
+      };
+
+      methods = {};
+
+      events = {};
+
+      watch = {};
+
+      computed = {};
+
+      async onLoad () {
+        var res = await agentApi.getTreeList()
+        this.treeList = res.data
+        this.treeList.showChild = false
+        let twoChild = 0
+        if (this.treeList.children.length) {
+          this.treeList.children.forEach((item, index) => {
+            item.num = index + 1
+            item.showChild = false
+            item.level = 1
+            twoChild += item.children.length
+            if (item.children.length) {
+              item.children.forEach((item, index) => {
+                item.num = index + 1
+                item.level = 2
+                item.showChild = true
+              })
+            } else {
+              item.showChild = true
+            }
+          })
+          this.treeList.twoChild = twoChild
+        } else {
+          this.treeList.showChild = true
+        }
+        this.$apply()
+      };
+
+      onShow () { };
+    }
+</script>

@@ -1,0 +1,590 @@
+<style lang="less">
+.container {
+    min-height: 100vh;
+    background-color: #f2f2f2;
+    padding-bottom: 104rpx;
+    .list {
+        background-color: #fff;
+
+        .item-outter {
+            .item {
+                width: 750rpx;
+                height: 209rpx;
+                padding: 0 24rpx;
+                padding-right: 0;
+                .item_transition {
+                    position: relative;
+                    background: white;
+                    z-index: 5;
+                    width: 100%;
+                    transition: left 0.1s ease-in-out;
+                    // z-index: 2;
+                }
+                label {
+                    display: block;
+                    width: 80rpx;
+                    height: 100%;
+
+                    checkbox {
+                        display: none;
+                    }
+
+                    .disable {
+                        display: block;
+                        width: 42rpx;
+                        height: 42rpx;
+                        border-radius: 50%;
+                        border: 1rpx solid rgba(204, 204, 204, 1);
+                        margin-top: 60rpx;
+                    }
+
+                    image {
+                        display: none;
+                        width: 42rpx;
+                        height: 42rpx;
+                        margin-top: 60rpx;
+                    }
+                }
+
+                .item-right {
+                    width: 621rpx;
+                    height: 100%;
+                    padding: 40rpx 0;
+                    border-bottom: 1rpx solid #F2F2F2;
+                    .item-middle {
+                        width: 140rpx;
+                        height: 104rpx;
+                    }
+
+                    .right-right {
+                        // background-color: #f0f0f0;
+                        width: 452rpx;
+                        height: 100%;
+
+                        .right-top {
+                            width: 100%;
+                            .title {
+                                width: 362rpx;
+                                // height: 63rpx;
+                                font-size: 27rpx;
+                                font-weight: 400;
+                                color: #313131;
+                                line-height: 36rpx;
+                                margin-top: -2px;
+                            }
+
+                            .price {
+                                font-size: 24rpx;
+                                font-weight: 400;
+                                color: #cc0000;
+                                line-height: 24rpx;
+                            }
+                        }
+
+                        .right-bottom {
+                            width: 100%;
+                            .type {
+                                font-size: 24rpx;
+                                font-weight: 400;
+                                color: #999999;
+                                line-height: 24rpx;
+                            }
+                        }
+                    }
+                }
+                .delete_item_btn {
+                    position: absolute;
+                    right: 0;
+                    width: 122rpx;
+                    line-height: 211rpx;
+                    z-index: 4;
+                    height: 209rpx;
+                    background: rgba(224,102,102,1);
+                    text-align: center;
+                    .delete_icon::before {
+                        content: "\e619";
+                        font-size: 36rpx;
+                        color: white;
+                    }
+                }
+            }
+
+            .item.active {
+                label {
+                    border: none;
+
+                    image {
+                        display: block;
+                    }
+
+                    .disable {
+                        display: none;
+                    }
+                }
+            }
+
+            .delete {
+                width: 122rpx;
+                height: 211rpx;
+                background: #e06666;
+            }
+        }
+
+        swiper + swiper {
+            .item-outter {
+                .item {
+                    .item-right {
+                        border-top: 1rpx solid #f2f2f2;
+                    }
+                }
+            }
+        }
+    }
+
+    .settlement {
+        width: 750rpx;
+        height: 104rpx;
+        background: #ffffff;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        border-bottom: 1rpx solid #f2f2f2;
+        z-index: 13;
+
+        .settlement-left {
+            font-size: 28rpx;
+            font-weight: 400;
+            color: #222222;
+
+            .all-check {
+                width: 42rpx;
+                height: 42rpx;
+                border: 1rpx solid #cccccc;
+                border-radius: 50%;
+                margin: 0 38rpx 0 24rpx;
+            }
+            .all-check.active {
+                border: none;
+                border-radius: 0;
+            }
+        }
+
+        .settlement-right {
+            .settlement-text {
+                max-width: 350rpx;
+                height: 60rpx;
+                padding-right: 26rpx;
+
+                .text-top {
+                    font-size: 28rpx;
+                    font-weight: 400;
+                    color: #222222;
+                    line-height: 28rpx;
+
+                    .price {
+                        color: #cc0000;
+                    }
+                }
+
+                .text-bottom {
+                    font-size: 22rpx;
+                    line-height: 22rpx;
+                    font-weight: 400;
+                    color: #999999;
+                    margin-top: 10rpx;
+                }
+            }
+
+            .settlement-btn {
+                width: 188rpx;
+                height: 104rpx;
+                background-color: #cccccc;
+                font-size: 28rpx;
+                font-weight: 400;
+                color: #fff;
+                line-height: 104rpx;
+            }
+
+            .settlement-btn.active {
+                background-color: #84C257;
+            }
+        }
+    }
+    .no-data-tip {
+        padding: 150rpx 0;
+        text-align: center;
+        color: #888;
+        font-size: 28rpx;
+    }
+
+    .no-data-tip .no-data-icon {
+        width: 160rpx;
+        height: 160rpx;
+        font-size: 0;
+        border-radius: 9999rpx;
+        background: rgba(0,0,0,0.1);
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 32rpx;
+    }
+}
+</style>
+
+<template>
+    <view class="container">
+        <checkbox-group @change="checkboxChange" class="list">
+            <repeat for="{{items}}" key="index" index="index" item="item">
+                <view class="item-outter">
+                    <view class="item flex {{item.checked ? 'active' : ''}}">
+                        <view class="item_transition flex "
+                            bindtouchstart="touchStart"
+                            bindtouchmove="touchMove"
+                            bindtouchend="touchEnd"
+                            style="{{ item.delStyle }}"
+                            data-index="{{ index }}"
+                        >
+                            <label>
+                                <view class="disable"></view>
+                                <image src="/assets/images/shoppingCar/circle_click.png" />
+                                <checkbox value="{{item.id}}" checked="{{item.checked}}" />
+                            </label>
+                            <view class="item-right flex flex-j-c-sb">
+                                <image class="item-middle" src="{{item.goods.picUrl}}" mode="aspectFill" @tap="goPath({{item.goods.id}})" />
+                                <view class="right-right flex flex-wrap flex-a-c-sb">
+                                    <view class="right-top flex flex-j-c-sb flex-a-i-center" @tap="goPath({{item.goods.id}})">
+                                        <view class="title ellipsis2">{{item.goods.name}}</view>
+                                        <text class="price">￥{{item.price}}</text>
+                                    </view>
+                                    <view class="right-bottom flex flex-j-c-sb flex-a-i-center">
+                                        <text class="type">{{item.specificationsName}}</text>
+                                        <stepper :item.sync="item" @countChange.user="countChange" />
+                                    </view>
+                                </view>
+                            </view>
+                        </view>
+                        <view class='delete_item_btn' bindtap="delete({{ item.id }})" data-index="{{ index }}">
+                            <text class="iconfont delete_icon"></text>
+                        </view>
+                    </view>
+                </view>    
+            </repeat>
+        </checkbox-group>
+        
+        <!-- 空车 -->
+         <view class="no-data-tip" wx:if="{{!items.length}}">
+            <view class="no-data-icon flex flex-a-i-center flex-j-c-center">
+                <image src="/assets/images/nav-icon-cart.png" style="width: 81rpx;height: 81rpx"></image>
+            </view>
+            <view>购物车还是空的哦</view>
+        </view>
+        <!-- 底部结算 -->
+        <view class="settlement flex flex-j-c-sb" wx:if="{{items.length>0}}" >
+            <view class="settlement-left flex flex-a-i-center" @tap="selectAll">
+                <view class="all-check" wx:if="{{!isAllSelected}}"></view>
+                <image class="all-check active" wx:else src="/assets/images/shoppingCar/circle_click.png" mode="aspectFill" />全选
+            </view>
+            <view class="settlement-right flex flex-a-i-center">
+                <view class="settlement-text right">
+                    <view class="text-top">合计：<text class="price">￥{{price}}</text></view>
+                    <view class="text-bottom">已享受免运费</view>
+                </view>
+                <view class="settlement-btn center {{checkedLength > 0 ? 'active' : ''}}"  bindtap="submit">
+                  结算<text wx:if="{{checkedLength > 0}}">({{checkedLength}})</text>
+                </view>
+            </view>
+        </view>
+    </view>
+</template>
+
+
+<script>
+import wepy from 'wepy'
+import showMore from '@/components/showMore'
+import Stepper from '@/components/stepper'
+import goods from '@/apiJs/goods'
+import Tips from '@/utils/tips.js'
+import api from '@/apiJs/api.js'
+export default class ShoppingCar extends wepy.page {
+  config = {
+    navigationBarTitleText: '购物车'
+  }
+
+  components = {
+    'stepper': Stepper
+  }
+
+  data = {
+    items: [],
+    delWidth: 122,
+    itemTouch: {
+      startX: 0,
+      moveX: 0,
+      endX: 0,
+      delStyle: ''
+    },
+    isAllSelected: true,
+    previousMargin: '0rpx',
+    price: 0,
+    offset: 0,
+    limit: 10,
+    moreType: '',
+    switch: true
+  }
+
+  computed = {
+    checkedLength () {
+      return this.items.filter(item => {
+        return item.checked === true
+      }).length
+    }
+  }
+
+  methods = {
+    // 跳转商品详情
+    goPath (id) {
+      wepy.navigateTo({url: '/pages/index_package/goodsDetail?id=' + id})
+    },
+    async countChange (item, stype) {
+      console.log(stype)
+      var data = {
+        id: item.id,
+        number: item.count
+      }
+      goods.cartUpdata(data).then(res => {
+        console.log(res)
+        if (res.code === 200) { // 库存不足
+          Tips.success('抱歉库存不足')
+          if (stype === 'plus') {
+            item.count = item.count - 1
+          } else {
+            item.count = item.count + 1
+          }
+          this.$apply()
+          return
+        }
+        this.getCartPrice()
+        this.$apply()
+      })
+    },
+    checkboxChange: function (e) {
+      this.items.forEach(item => {
+        item.checked = false
+        if (e.detail.value.indexOf(item.id + '') >= 0) {
+          item.checked = true
+        }
+      })
+      var arr = this.items.filter(item => {
+        return item.checked === true
+      })
+      this.$parent.globalData.cartCheck = arr
+      this.price = 0
+      arr.forEach(item => {
+        this.price += item.price * item.count
+        this.price = Math.round(this.price * 100) / 100
+      })
+      // this.price = (this.price).toFixed(2)
+      this.checkIsAllSelected()
+    },
+
+    selectAll () {
+      this.checkIsAllSelected()
+      if (!this.isAllSelected) {
+        this.items.forEach(item => {
+          item.checked = true
+        })
+        this.$parent.globalData.cartCheck = this.items
+        this.isAllSelected = true
+      } else {
+        this.items.forEach(item => {
+          item.checked = false
+        })
+        this.$parent.globalData.cartCheck = []
+        this.isAllSelected = false
+      }
+
+      var arr = this.items.filter(item => {
+        return item.checked === true
+      })
+      this.price = 0
+      arr.forEach(item => {
+        this.price += item.price * item.count
+        this.price = Math.round(this.price * 100) / 100
+      })
+    },
+
+    bindchange (e) {
+      console.log(e.detail.current)
+      if (e.detail.current === 1) {
+        this.previousMargin = '628rpx'
+      } else {
+        this.previousMargin = '0'
+      }
+    },
+    // 左滑动删除
+    touchStart (e) {
+      if (e.touches.length === 1) {
+        this.itemTouch.startX = e.touches[0].clientX
+      }
+    },
+    touchMove (e) {
+      if (e.touches.length === 1) {
+        var moveX = e.touches[0].clientX
+        var distance = this.itemTouch.startX - moveX
+        var transition = 0
+        if (distance === 0 || distance < 0) {
+          transition = 0
+        } else if (distance < this.delWidth) {
+          transition = distance
+        } else if (distance > this.delWidth) {
+          transition = this.delWidth
+        }
+      }
+      var index = e.currentTarget.dataset.index
+      this.items[index].delStyle = 'left: -' + transition + 'rpx'
+    },
+    touchEnd (e) {
+      var transition = 0
+      if (e.changedTouches.length === 1) {
+        var endX = e.changedTouches[0].clientX
+        var endDistance = this.itemTouch.startX - endX
+        if (endDistance > this.delWidth >> 1) {
+          transition = this.delWidth
+        } else {
+          transition = 0
+        }
+      }
+      var index = e.currentTarget.dataset.index
+      this.items[index].delStyle = 'left: -' + transition + 'rpx'
+    },
+    // 删除
+    async delete (id, e) {
+      var index = e.currentTarget.dataset.index
+      await Tips.confirm('您确定要删除当前的宝贝吗？')
+      var data = {
+        ids: id
+      }
+      goods.batchRemove(data).then(res => {
+        if (res.data === 'OK') {
+          this.items.splice(index, 1)
+          Tips.success('删除成功')
+          this.price = this.getCartPrice()
+          this.getCartNumber()
+          this.$apply()
+        }
+      })
+    },
+    //
+    async submit () {
+      if (!api.judgeAgentForbit()) {
+        return false
+      }
+      if (!api.judgeAgent()) {
+        return false
+      }
+      if (!this.checkedLength) {
+        return false
+      }
+      // 保存购物车列表到全局
+      var arr = this.items.filter(item => {
+        return item.checked === true
+      })
+      var arr1 = []
+      arr.forEach(item => {
+        item.goods.number = item.count
+        item.goods.brief = item.goods.name
+        item.goods.property = item.specificationsName
+        item.goods.specPrice = item.price
+        item.goods.specImg = item.goods.picUrl
+        item.goods.totalPrice = item.price * item.count
+        item.goods.specifications = item.specifications
+        item.goods.cartId = item.id
+        arr1.push(item.goods)
+      })
+
+      this.$parent.globalData.buyGoodsList = arr1
+      this.$parent.goPath(`/pages/index_package/orderConfirm?isType=2`)
+    }
+  }
+
+  checkIsAllSelected () {
+    let count = 0
+    this.items.map(item => {
+      if (!item.checked) {
+        count++
+      }
+    })
+    this.isAllSelected = !(count > 0)
+    // this.price = 0
+    // this.items.forEach(item => {
+    //   this.price += item.price * item.count
+    // })
+  }
+
+  onLoad () {
+    this.checkIsAllSelected()
+  }
+  onShow () {
+    Tips.loading()
+    this.getCartList()
+    this.getCartNumber()
+  }
+  onReachBottom () {
+    if (this.switch) {
+      this.getCartList()
+    }
+  }
+  // 获取购物车里列表
+  async getCartList () {
+    goods.cartList().then((res) => {
+      if (res.code === 0) {
+        this.items = res.data.rows
+        var arr = []
+        if (this.$parent.globalData.cartCheck.length !== 0) {
+          this.$parent.globalData.cartCheck.forEach((item) => {
+            arr.push(item.id)
+          })
+        }
+        this.items.forEach((item) => {
+          if (arr.indexOf(item.id) >= 0) {
+            item.checked = true
+          } else {
+            item.checked = false
+          }
+          item.count = item.number
+        })
+
+        var arrChecked = this.items.filter(item => {
+          return item.checked === true
+        })
+        this.price = 0
+        arrChecked.forEach(item => {
+          this.price += item.price * item.count
+          this.price = Math.round(this.price * 100) / 100
+          this.$apply()
+        })
+
+        this.checkIsAllSelected()
+        this.$apply()
+      }
+      Tips.loaded()
+    })
+  }
+  //
+  getCartPrice () {
+    var arr = this.items.filter(item => {
+      return item.checked === true
+    })
+    this.price = 0
+    arr.forEach(item => {
+      this.price += item.price * item.count
+      this.price = Math.round(this.price * 100) / 100
+    })
+    console.log(this.price)
+    return this.price
+  }
+  // 获取购物车数量
+  getCartNumber () {
+    goods.selectCartCount()
+  }
+}
+</script>

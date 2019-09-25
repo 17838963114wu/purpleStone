@@ -1,0 +1,268 @@
+
+<!-- 我的返利 -->
+<template>
+    <view class='container'>
+       <view class="rebate_total flex">
+           <text>返利总额(元)</text>
+           <view class="rebate_money">￥{{totalAmount?totalAmount:'0.00'}}</view>
+       </view>
+       <repeat>
+           <view class="rebate_content">
+            <view class="rebate_select flex flex-a-i-center flex-j-c-sb ">
+                <view class="flex flex-a-i-center">
+                    <image class="title_icon" src="/assets/images/proxyCenter/my_fanli_icon.png"></image>
+                    返利明细
+                </view>
+                <picker
+                        mode="multiSelector" 
+                        range="{{ multiArr }}" 
+                        @change="change"
+                        @columnchange="columnchange"
+                        class="filter-box flex flex-a-i-center">
+                    筛选   {{filterText}}
+                    <image src="/assets/images/proxyCenter/my_fanli_xiala_icon.png"></image>
+                </picker>
+            </view>
+            <repeat for="{{list}}" key="" item="item">
+                <view class="rebate_item flex flex-j-c-sb">
+                        <view class="flex left-item">
+                            <view class="ellipsis" style="width:500rpx;">{{item.orderDO.name}}</view>
+                            <text class="time">{{item.createTime}}</text>
+                        </view>
+                        <view class="money">￥{{item.commission}}</view>
+                        <view class="agent_name"><rich-text style="margin-right:28rpx;" nodes="{{item.orderCustomer.username}}"></rich-text>  {{item.orderCustomer.authorization}}</view>
+                    </view>
+            </repeat>
+            <view class="no_rebate" wx:if="{{list.length==0}}">暂时没有数据~</view>
+        </view>
+       </repeat>
+       <!-- 加载更多 -->
+        <show-more :moreType.sync='moreType'></show-more>
+       <footer :containerHeight.sync="containerHeight"/>
+    </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import Footer from '@/components/footer'
+import showMore from '@/components/showMore'
+import agentApi from '@/apiJs/agentApi.js'
+import Tips from '@/utils/tips.js'
+export default class Rebate extends wepy.page {
+  config = {
+    navigationBarTitleText: '我的返利'
+  };
+  components = {
+    'show-more': showMore,
+    'footer': Footer
+  };
+  data={
+    containerHeight: 0,
+    list: [],
+    offset: 0,
+    limit: 10,
+    mouth: '',
+    year: '',
+    totalAmount: '',
+    multiArr: [
+            ['全部', '按月份'],
+            [],
+            []
+    ],
+    yearArr: [],
+    mouthArr: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
+    filterText: '',
+    switch: true,
+    moreType: ''
+  };
+  methods = {
+    change (e) {
+      console.log(e)
+      let valueArr = e.detail.value
+      if (valueArr[0] === 0) {
+        this.filterText = '全部'
+        this.offset = 0
+        this.limit = 10
+        this.year = ''
+        this.mouth = ''
+      } else {
+        console.log(valueArr[1])
+        console.log(this.yearArr[valueArr[1]])
+        if (!valueArr[1]) {
+          valueArr[1] = 0
+        }
+        if (!valueArr[2]) {
+          valueArr[2] = 0
+        }
+        this.filterText = this.yearArr[valueArr[1]] + '年' + this.mouthArr[valueArr[2]] + '月'
+        this.offset = 0
+        this.limit = 10
+        this.year = this.yearArr[valueArr[1]]
+        this.mouth = Number(this.mouthArr[valueArr[2]])
+      }
+      this.getList()
+    },
+    columnchange (e) {
+      var index = e.detail.column
+      var value = e.detail.value
+      console.log(index)
+      console.log(value)
+      switch (index) {
+        case 0:
+          if (value === 0) {
+            this.multiArr[1] = []
+            this.multiArr[2] = []
+          } else {
+            this.multiArr[1] = this.yearArr
+            this.multiArr[2] = this.mouthArr
+          }
+          break
+        case 1:
+
+          break
+        case 2:
+
+          break
+        default: break
+      }
+    }
+  };
+  onReachBottom () {
+    if (this.switch) {
+      this.getList()
+    }
+  }
+  async onLoad () {
+    this.containerHeight = await this.$parent.$util.getContainerHeight('.container')
+    Tips.loading()
+    let date = new Date()
+    let nowYear = date.getFullYear()
+    this.yearArr = []
+    for (let i = nowYear; i > (nowYear - 10); i--) {
+      this.yearArr.push(i)
+    }
+    this.getList()
+  }
+  getList () {
+    let data = {
+      offset: this.offset,
+      limit: this.limit,
+      mouth: this.mouth,
+      year: this.year
+    }
+    agentApi.getMyCashBack(data).then(res => {
+      this.totalAmount = res.data.totalAmount
+      this.list = res.data.list
+      if (res.data.list.length > 0 && res.data.list.length < 10) {  // 已无数据
+        this.moreType = 2
+        this.switch = false
+      } else {
+        this.moreType = 1
+        this.switch = true
+      }
+      if (this.offset === 0) {
+        this.list = res.data.list
+        if (res.data.list.length === 0) {
+          this.moreType = ''
+        }
+      } else {
+        if (res.data.list.length > 0) {
+          this.list = this.list.concat(res.data.list)
+        }
+      }
+      this.offset += 10
+      this.$apply()
+      Tips.loaded()
+    })
+  }
+}
+</script>
+
+<style lang='less'>
+  .container{
+    padding-bottom: 100rpx;
+  }
+    .rebate_total{
+        flex-direction: column;
+        align-items: center;
+        font-size: 24rpx;
+        background: #F2F9EE;
+        height: 263rpx;
+        justify-content: center;
+        border-bottom: 12rpx solid #f2f2f2;
+        text{
+            margin-top: -10rpx;
+        }
+        .rebate_money{
+            font-size: 50rpx;
+            color: #222222;
+            margin-top: 35rpx;
+        }
+    }
+    .rebate_content{
+        padding-left: 24rpx;
+        .rebate_select{
+            height: 101rpx;
+            font-size: 30rpx;
+            color: #222222;
+            padding: 0 23rpx 0 0;
+            border-bottom: 1rpx solid #EEEEEE;
+            .title_icon{
+                width: 25rpx;
+                height: 29rpx;
+                margin-right: 14rpx;
+            }
+            .filter-box{
+                color: #999999;
+                font-size: 26rpx;
+                image{
+                    width: 18rpx;
+                    height: 9rpx;
+                    margin-left: 10rpx;
+                }
+            }
+            
+        }
+        .rebate_item{
+            height: 130rpx;
+            font-size: 30rpx;
+            color: #333333;
+            padding: 0 23rpx 0 0;
+            border-bottom: 1rpx solid #EEEEEE;
+            box-sizing: border-box;
+            position: relative;
+            .left-item{
+                flex-direction: column;
+                justify-content: center;
+                text{
+                    color: #999999;
+                    font-size: 24rpx;
+                    margin-top: 10rpx;
+                }
+            }
+            .money{
+                margin-top: 30rpx;
+            }
+            .agent_name{
+              position: absolute;
+              right: 23rpx;
+              text-align: right;
+              bottom:22rpx;
+              display:flex;
+              color:#999;
+              font-size:24rpx;
+
+            }
+        }
+        .rebate_item:last-child{
+            border-bottom: none;
+        }
+        
+    }
+    .no_rebate{
+      text-align: center;
+      font-size: 26rpx;
+      color:#999999;
+      padding: 30rpx 0;
+    }
+</style>

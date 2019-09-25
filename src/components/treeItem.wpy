@@ -1,0 +1,150 @@
+<!--  -->
+<template>
+    <view class='tree_item_container'>
+        <!-- <repeat for="{{children}}" key="index" index="index" item="item"> -->
+            <view style="padding-left: {{ children.level * 65 }}rpx" class="tree_item flex flex-j-c-sb flex-a-i-center">
+                <view class="tree_left flex flex-a-i-center">
+                    <image class="pick_icon" src="/assets/images/proxyCenter/myself_team_pick.png" mode="aspectFit"
+                    lazy-load="false" wx:if="{{ children.showChild }}" @tap="childShowSub({{ children.num }})">
+                    </image>
+                    <image class="pick_icon" src="/assets/images/proxyCenter/myself_team_open.png" mode="aspectFit"
+                    lazy-load="false" @tap="childShowSub({{ children.num }})" wx:else>
+                    </image>
+                    <view class="tree_user flex flex-a-i-center">
+                        <image src="{{ children.avatar }}" mode="aspectFit"
+                        lazy-load="false">
+                        </image>
+                        <rich-text class="rich_text" nodes="{{children.text}}"></rich-text>
+                    </view>
+                </view>
+                <view class="tree_right flex flex-a-i-center">
+                    <view class="position">（{{ children.authorization }}）</view>
+                    <view class="item_right flex flex-a-i-center">
+                        <view class="flex number active_num">
+                            <view class="superior" wx:if="{{children.level==1}}">{{children.children.length}}</view>
+                             <view class="superior" @tap="toSub" wx:if="{{children.level==2}}">0</view>
+                            <view class="sub" @tap="toSub" wx:if="{{children.level==1}}">{{ children.children.length }}</view>
+                            <view class="sub" @tap="toSub" wx:if="{{children.level==2}}">0</view>
+                        </view>
+                    </view>
+                </view>
+            </view>
+        <!-- </repeat> -->
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+export default class TreeItem extends wepy.component {
+      props = {
+        children: [Array, Object],
+        level: Number
+      };
+
+      data = {
+        // level: 1
+      };
+
+      components = {};
+
+      methods = {
+        childShowSub (num) {
+          this.$emit('childShowSub', num)
+            // if (this.treeList.showChild) {
+            //     this.level++
+            // } else {
+            //     this.level--
+            // }
+        }
+      };
+
+      events = {};
+
+      watch = {};
+
+      computed = {};
+
+      onLoad () {
+        this.children = this.$parent.children1
+      };
+
+      onShow () {
+
+      };
+    }
+</script>
+
+<style lang='less'>
+.tree_item {
+    width: 100%;
+    padding: 29rpx 26rpx;
+    border-bottom: 1px solid rgba(242,242,242,1);
+    .pick_icon {
+        margin-right: 24rpx;
+    }
+    .tree_left {
+        image {
+            width: 34rpx;
+            height: 34rpx;
+        }
+        .tree_user {
+            font-size:30rpx;
+            font-family:PingFangSC;
+            font-weight:400;
+            color:rgba(34,34,34,1);
+            image {
+                width:54rpx;
+                height:54rpx;
+                border-radius:50%;
+                margin-right: 17rpx;
+            }
+            text {
+                width: 90rpx;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+    }
+    .tree_right {
+        .position {
+            font-size:22rpx;
+            font-family:PingFangSC;
+            font-weight:400;
+            color:rgba(102,102,102,1);
+        }
+        .item_right {
+            font-size:24rpx;
+            font-family:PingFangSC;
+            font-weight:400;
+            color:rgba(255,255,255,1);
+            .number {
+                margin-right: 28rpx;
+            }
+            .superior {
+                width:44rpx;
+                line-height: 40rpx;
+                text-align: center;
+                height:40rpx;
+                background:rgba(204,0,0,1);
+                opacity:0.4;
+                border-radius:18rpx 0px 0px 18rpx;
+            }
+            .sub {
+                width:44rpx;
+                height:40rpx;
+                line-height: 40rpx;
+                text-align: center;
+                background:rgba(34,34,34,1);
+                opacity:0.4;
+                border-radius:0px 20rpx 20rpx 0px;
+            }
+            .active_num {
+                .superior, .sub {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+}
+</style>

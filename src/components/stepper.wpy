@@ -1,0 +1,98 @@
+<style lang="less">
+.stepper {
+    width: 156rpx;
+    height: 42rpx;
+    background: #fff;
+    border: 1rpx solid #cccccc;
+
+    .btn {
+        width: 41rpx;
+        height: 100%;
+        font-size: 28rpx;
+        font-weight: 400;
+        color: #050505;
+        line-height: 42rpx;
+    }
+
+    input {
+        width: 74rpx;
+        height: 100%;
+        font-size: 28rpx;
+        font-weight: 400;
+        color: #050505;
+        line-height: 100%;
+        border-left: 1rpx solid #cccccc;
+        border-right: 1rpx solid #cccccc;
+    }
+}
+</style>
+
+<template>
+    <view class="stepper flex" data-specQuantity='{{specQuantity}}'>
+        <view class="btn minus-btn center" @tap="minus">-</view>
+        <input type="number" class="center" disabled='false' value="{{ item.count }}" />
+        <view class="btn plus-btn center" @tap="plus">+</view>
+    </view>
+</template>
+
+
+<script>
+import wepy from 'wepy'
+import { connect } from 'wepy-redux'
+import { INCREMENT, DECREMENT } from '@/store/types/counter.js'
+
+@connect({
+  stateNum (state) {
+    return state.counter.num
+  },
+  asyncNum (state) {
+    return state.counter.asyncNum
+  }
+})
+export default class Stepper extends wepy.component {
+  props = {
+    item: {
+      twoWay: true
+    },
+    specQuantity: {
+      twoWay: true
+    }
+  }
+
+  data = {
+
+  }
+
+  events = {}
+
+  watch = {}
+
+  methods = {
+    minus () {
+      if (this.item.count <= 1) {
+        this.item.count = 1
+        return
+      }
+      this.item.count -= 1
+      this.$emit('countChange', this.item, 'minus')
+    },
+    plus () {
+      if (this.specQuantity !== null) {
+        if (this.item.count >= this.specQuantity) {
+          return false
+        }
+      }
+      this.item.count += 1
+      this.$emit('countChange', this.item, 'plus')
+    },
+    countChange () {
+      this.$emit('countChange', this.item)
+    }
+
+  }
+
+  onLoad () {
+
+  }
+}
+</script>

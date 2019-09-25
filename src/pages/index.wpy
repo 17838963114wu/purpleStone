@@ -1,0 +1,392 @@
+<style lang="less">
+.container {
+     background: #fff;
+    .swiper-box {
+        position: relative;
+        .serch-box{
+            position: absolute;
+            width: 702rpx;
+            height: 64rpx;
+            border-radius: 30rpx;
+            background: #fff;
+            z-index: 1;
+            top: 20rpx;
+            left: 24rpx;
+            display: flex;
+            align-items: center;
+            font-size: 24rpx;
+            color: #999999;
+        }
+        .search-logo-icon {
+            width: 50rpx;
+            height: 31rpx;
+            z-index: 2;
+            margin: 6rpx 21rpx 0 24rpx;
+        }
+
+        .search-icon {
+            width: 24rpx;
+            height: 24rpx;
+            position: absolute;
+            left: 87rpx;
+            top: 29rpx;
+            z-index: 2;
+        }
+
+        .swiper {
+            width: 750rpx;
+            height: 456rpx;
+
+            .slide-image {
+                width: 750rpx;
+                height: 100%;
+            }
+        }
+
+        .dots-box {
+            position: absolute;
+            left: 50%;
+            bottom: 23rpx;
+            transform: translate(-50%, 0);
+            z-index: 1;
+            .dot-item {
+                width: 10rpx;
+                height: 10rpx;
+                background: #fff;
+                opacity: 0.4;
+                border-radius: 50%;
+                margin: 0 9rpx;
+            }
+            .dot-item.active {
+                width: 27rpx;
+                height: 10rpx;
+                opacity: 1;
+                margin: 0 5rpx;
+                border-radius: 5rpx;
+            }
+        }
+    }
+
+    .icon-box {
+        padding: 25rpx 60rpx 0;
+        border-bottom: 12rpx solid #f2f2f2;
+        .item {
+            width: 84rpx;
+            margin-bottom: 37rpx;
+
+            image {
+                width: 100%;
+                height: 84rpx;
+            }
+
+            .item-text {
+                font-size: 24rpx;
+                font-weight: 400;
+                color: #666666;
+                line-height: 24rpx;
+            }
+        }
+    }
+
+    .middle-banner {
+        padding: 6rpx 0;
+        border-bottom: 12rpx solid #f2f2f2;
+
+        .middle-left-banner {
+            width: 370rpx;
+            height: 380rpx;
+        }
+
+        .middle-right {
+            width: 370rpx;
+            height: 380rpx;
+            .right-banner {
+                width: 100%;
+                height: 186rpx;
+            }
+        }
+    }
+
+    .index-list {
+        border-bottom: 12rpx solid #f2f2f2;
+        .title {
+            font-size: 32rpx;
+            font-weight: 500;
+            color: #222222;
+            padding: 38rpx 24rpx 34rpx;
+            image{
+                width: 32rpx;
+                height: 32rpx;
+                margin-right: 17rpx;
+            }
+            .icon-top{
+                margin-top: -3rpx;
+            }
+        }
+    }
+}
+</style>
+
+<template>
+    <view class="container">
+        <view class="swiper-box">
+            <!-- <image class="search-logo-icon" src="/assets/images/index/home_logo_img.png"/>
+            <input bindinput="bindReplaceInput" placeholder="" placeholder-class="placeholder-class" /> -->
+            <view class="serch-box" @tap="goPath('/pages/index_package/search')">
+                <image class="search-logo-icon" src="/assets/images/index/home_logo_img.png"/>
+                <text>请输入您所搜索的商品</text>
+            </view>
+            <swiper class="swiper" indicator-dots="{{indicatorDots}}" circular autoplay="{{autoplay}}" interval="{{interval}}" duration="{{duration}}" @change="bindChange">
+                <repeat for="{{bannerList}}" key="index" index="index" item="item">
+                    <swiper-item>
+                        <image src="{{item.mainPic}}" class="slide-image" mode="aspectFill" />
+                    </swiper-item>
+                </repeat>
+            </swiper>
+
+            <!-- 轮播图自定义指示器 -->
+            <view class="dots-box flex">
+                <repeat for="{{bannerList}}" key="index" index="index" item="item">
+                    <view class="dot-item {{index === crrIndex ? 'active' : ''}}"></view>
+                </repeat>
+            </view>
+        </view>
+
+        <view class="icon-box flex flex-wrap">
+            <repeat for="{{categoryList}}" key="index" index="index" item="item">
+                <view class="item" style="{{index % 4 !== 0 ? 'margin-left: 98rpx;' : ''}}" @tap="goPath('/pages/index_package/productList?id={{item.id}}&current={{index}}')">
+                    <image src="{{item.iconUrl}}" mode="aspectFill" />
+                    <view class="item-text ellipsis center">{{item.name}}</view>
+                </view>
+            </repeat>
+        </view>
+
+        <view class="middle-banner flex flex-j-c-sb">
+            <image class="middle-left-banner" src="{{belowList[0].mainPic}}" mode="aspectFit" />
+            <view class="middle-right flex flex-wrap flex-a-c-sb">
+                <image class="right-banner" src="{{belowList[1].mainPic}}" mode="aspectFill" />
+                <image class="right-banner" src="{{belowList[2].mainPic}}" mode="aspectFill" />
+            </view>
+        </view>
+
+        <view class="index-list" >
+            <view class="title flex flex-a-i-center">
+                <image src="/assets/images/index/home_hot_icon.png" mode="widthFix"></image>热门面膜
+            </view>
+            <h-list :list.sync="hotList"/>
+            <view class='no_goods' wx:if='{{hotList.length===0}}'>暂无商品~</view>
+        </view>
+
+        <view class="index-list" style="border: none;">
+            <view class="title flex flex-a-i-center">
+                <image class="icon-top" src="/assets/images/index/home_youhui_icon@2x.png" mode="widthFix"></image>优惠套餐
+            </view>
+            <h-list1 :list.sync="discountList" />
+            <view class='no_goods' wx:if='{{discountList.length === 0}}'>暂无商品~</view>
+        </view>
+
+        <footer />
+    </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import { connect} from 'wepy-redux'
+import Footer from '@/components/footer'
+import hList from '@/components/hList'
+import index from '@/apiJs/index'
+import goods from '@/apiJs/goods'
+import api from '@/apiJs/api.js'
+import agentApi from '@/apiJs/agentApi.js'
+import Tips from '@/utils/tips.js'
+@connect({})
+export default class Index extends wepy.page {
+  config = {
+    navigationBarTitleText: 'Elska智能营养定制',
+    enablePullDownRefresh: true,
+    backgroundTextStyle: 'dark'
+  };
+  components = {
+    'footer': Footer,
+    'h-list': hList,
+    'h-list1': hList
+  };
+
+  data = {
+    bannerList: [],
+    categoryList: [],
+    belowList: [],
+    hotList: [],
+    discountList: [],
+    indicatorDots: false,
+    autoplay: true,
+    interval: 5000,
+    duration: 1000,
+    crrIndex: 0
+  };
+
+  computed = {};
+
+  methods = {
+
+        //  轮播图自定义指示器
+    bindChange (e) {
+      this.crrIndex = e.detail.current
+    },
+
+    goPath (...args) {
+      if (!api.toAuthor()) {
+        return false
+      }
+      this.$parent.$util.goPath(...args)
+    }
+  };
+
+  events = {};
+
+  onLoad () {
+    Tips.loading()
+    this.getBanner()
+    this.getBelow()
+    this.getCategory()
+    this.getListBySelect()
+    this.getDiscountList()
+    this.judgeAgent()
+    this.bingding()
+  }
+  onShow () {
+    this.getCartNumber()
+    this.forBit()
+  }
+  onHide () {
+  }
+  // 下拉刷新
+  onPullDownRefresh () {
+    this.getBanner()
+    this.getBelow()
+    this.getCategory()
+    this.getListBySelect()
+    this.getDiscountList()
+    this.judgeAgent()
+    setTimeout(() => {
+      wx.stopPullDownRefresh()
+    }, 800)
+  }
+    // 获取轮播图
+  getBanner () {
+    index.banner().then(res => {
+      this.bannerList = res.data.rows
+      this.$apply()
+    })
+  }
+    // 获取轮播下方图片
+  getBelow () {
+    index.below().then(res => {
+      this.belowList = res.data
+      this.$apply()
+    })
+  }
+
+    // 获取分类
+  getCategory () {
+    index.category().then(res => {
+      if (res.code === 0) {
+        this.categoryList = res.data.rows
+        this.$apply()
+      }
+    })
+  }
+    // 获取热门商品列表
+  getListBySelect () {
+    var data = {
+      offset: '0',
+      limit: '4',
+      isHot: '1'
+    }
+    index.getListBySelect(data).then((res) => {
+      if (res.code === 0) {
+        this.hotList = res.data.rows
+        this.hotList.forEach((item) => {
+          item.counterPrice = (item.counterPrice).toFixed(2)
+        })
+        this.$apply()
+      }
+      console.log('dddddddddddddd')
+      Tips.loaded()
+    })
+  }
+    // 获取优惠商品列表
+  getDiscountList () {
+    var data = {
+      offset: '0',
+      limit: '4',
+      isBenefit: '1'
+    }
+    index.getListBySelect(data).then((res) => {
+      if (res.code === 0) {
+        this.discountList = res.data.rows
+        this.discountList.forEach((item) => {
+          item.counterPrice = (item.counterPrice).toFixed(2)
+        })
+        this.$apply()
+      }
+    })
+  }
+
+  // 获取购物车数量
+  getCartNumber () {
+    goods.selectCartCount()
+  }
+
+  judgeAgent () {
+    agentApi.getInfo().then(res => {
+      // console.log(Number(res.code) === 0)
+      // console.log(res.code === 0)
+      if (Number(res.code) === 2020) {  // 非代理
+        wepy.reLaunch({ url: '/pages/login' })
+        this.$parent.globalData.isAgent = false
+      } else {
+        this.$parent.globalData.isAgent = true
+      }
+    })
+  }
+
+  // 判断代理是否被禁用
+  forBit () {
+    agentApi.getPersonalInfo().then(res => {
+      if (res.data) {
+        if (res.data.status === 0) {
+          this.$parent.globalData.isForbit = true
+        } else {
+          this.$parent.globalData.isForbit = false
+        }
+        this.$apply()
+      }
+    })
+  }
+
+  // 绑定功能
+  async bingding () {
+    let customerId = wepy.$instance.globalData.customerId
+    let authorizationData = wx.getStorageSync('authorization')
+    if (authorizationData && customerId) {
+      console.log('ssssssssssssssssssssssssssssssssssssss')
+      let res = await wepy.login()
+      if (res.code) {
+        var code = res.code
+      }
+      const data = {
+        code: code,
+        iv: authorizationData.iv,
+        encryptedData: authorizationData.encryptedData
+      }
+      if (customerId) {
+        data.customerId = customerId
+      }
+      api.wxUserInfo(data).then(res => {
+
+      })
+    }
+  }
+}
+</script>

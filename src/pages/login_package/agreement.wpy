@@ -1,0 +1,107 @@
+<style lang='less'>
+.container {
+    padding: 40rpx 35rpx 118rpx 35rpx;
+    font-size: 28rpx;
+    line-height: 45rpx;
+    .title{
+        font-weight: 500;
+    }
+    text{
+        text-indent: 2em;
+        color: #666666;
+        display: block;
+    }
+    .agreed-bottom{
+        position: fixed;
+        width: 100%;
+        height: 118rpx;
+        box-sizing: border-box;
+        padding: 32rpx;
+        left: 0;
+        bottom: 0;
+        z-index: 10;
+        background: #FBFBFB;
+        text{
+            color: #CF1A1A;
+            font-size: 24rpx;
+            text-indent: 0;
+            line-height: 35rpx;
+        }
+        view{
+            height: 80rpx;
+            width: 50%;
+            border-radius: 40rpx;
+            background: #84C257;
+            color:#fff;
+            font-size: 30rpx;
+            line-height: 80rpx;
+            text-align: center;
+            margin-left: 70rpx;
+        }
+    }
+}
+</style>
+
+<!-- 代理协议 -->
+<template>
+    <view class='container'>
+        <rich-text nodes="{{ detail }}"></rich-text>
+        <!-- <view class="title">
+            1、服务提哦啊款的确认和接纳
+        </view>
+        <text>1. 权利人对涉嫌侵权内容拥有商标权、著作权和/或其他依法可以行使权利的权属证明；</text>
+        <text>2. 权利人对涉嫌侵权内容拥有商标权、著作权和/或其他依法可以行使权利的权属证明；</text>
+        <text>3. 权利人对涉嫌侵权内容拥有商标权、著作权和/或其他依法可以行使权利的权属证明；</text>
+        <text>4. 权利人对涉嫌侵权内容拥有商标权、著作权和/或其他依法可以行使权利的权属证明；</text>
+        -->
+        <view class="agreed-bottom flex flex-a-i-center flex-j-c-sb">
+            <text>本人已经全面、仔细的阅读了《代理协议》现同意并接受协议书的所有内容</text>
+            <view @tap="toPrev">同意协议</view>
+        </view> 
+        
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import login from '@/apiJs/login.js'
+    import Tips from '@/utils/tips.js'
+    export default class forgetPass extends wepy.page {
+      config = {
+        navigationBarTitleText: '代理协议'
+      };
+
+      data = {
+          detail:'',
+      };
+
+      methods = {
+        toPrev () {
+          var curPages = getCurrentPages()
+          var prevPage = curPages[curPages.length - 2]
+          prevPage.setData({
+            isAgreed: true
+          })
+          wepy.navigateBack({
+            delta: 1
+          })
+        }
+      };
+      events = {};
+
+      watch = {};
+
+      computed = {};
+
+      async onLoad () {
+          Tips.loading()
+          login.agreedDetail().then(res=>{
+              this.detail = res.data.aboutUs
+              this.$apply()
+              Tips.loaded()
+          })
+      };
+
+      onShow () { };
+    }
+</script>

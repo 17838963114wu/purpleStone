@@ -1,0 +1,162 @@
+<style lang='less'>
+.container {
+	background: #fff;
+	padding: 88rpx 40rpx 68rpx 40rpx;
+	.logo {
+		width: 239rpx;
+		height: 91rpx;
+		margin: 0 auto;
+		margin-bottom: 106rpx;
+		image {
+			width: 100%;
+			height: 91rpx;
+		}
+	}
+	.login_form {
+		form {
+			label {
+				display: flex;
+				border-bottom:1rpx solid #F4F4F4;
+				font-size:32rpx;
+				font-weight:400;
+				padding: 25rpx 0;
+				margin-bottom: 48rpx;
+				&:last-of-type {
+					margin-bottom: none;
+				}
+				input {
+					width: 100%;
+				}
+			}
+			text {
+				display: flex;
+				align-items: center;
+				margin-right: 27rpx;
+			}
+			.icon_user::before {
+				content: '\e697';
+			}
+			.icon_pwd::before {
+				content: '\e6e6';
+            }
+            .to-path-box{
+                height: 110rpx;
+                margin-top: -48rpx;
+            }
+			button {
+				width:670rpx;
+				height:82rpx;
+				margin: 0 auto;
+				margin-top: 40rpx;
+				background:#84C257;
+				border-radius:41rpx;
+				text-align: center;
+				line-height: 82rpx;
+				font-size:30rpx;
+				font-weight:400;
+				color:rgba(255,255,255,1);
+			}
+			.proxy {
+				font-size:26rpx;
+				color:#666666;
+			}
+		}
+	}
+}
+</style>
+<!--  -->
+<template>
+  <view class='container'>
+      <view class="logo">
+          <image src="/assets/images/proxyCenter/my_logo.png"></image>
+      </view>
+      <view class="login_form">
+          <form @submit="submit">
+              <label class="flex flex-a-i-center">
+				  <text class="iconfont icon_user"></text>
+                  <input name="account" type="text" placeholder="请输入账号" placeholder-class="placeholder"
+                      maxlength="20" />
+              </label>
+              <label class="flex flex-a-i-center">
+				  <text class="iconfont icon_pwd"></text>
+                  <input name="password" type="password" password="true" placeholder="请输入密码（默认密码为888888）" placeholder-class="placeholder"
+                      maxlength="20" />
+              </label>
+              <view class="to-path-box flex flex-a-i-center flex-j-c-sb">
+                  <navigator class="proxy" url="/pages/login_package/applyAgent" hover-class='none'>我要成为代理</navigator>
+                  <navigator class="proxy" url="/pages/login_package/forgetPass?isType=1" hover-class='none'>忘记密码</navigator>
+              </view>
+			      <button formType="submit">立即登录</button>
+          </form>
+      </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import login from '@/apiJs/login.js'
+  import agentApi from '@/apiJs/agentApi.js'
+  import Tips from '@/utils/tips.js'
+export default class Login extends wepy.page {
+    config = {
+      navigationBarTitleText: '登录'
+    };
+
+    data = {
+      agentInfo: []
+    };
+
+    components = {};
+
+    methods = {
+      submit (e) {
+        const params = e.detail.value
+        if (!params.account) {
+          Tips.success('请输入您的账号')
+          return false
+        }
+        if (!params.password) {
+          Tips.success('请输入您的密码')
+          return false
+        }
+        var data = {
+          username: params.account,
+          password: params.password
+        }
+        login.login(data).then(res => {
+          console.log(res)
+          if (res.code === 0) {
+            this.agentInfo = res.data
+            Tips.success('登录成功').then(() => {
+              wepy.switchTab({ url: '/pages/index' })
+            })
+            this.$parent.globalData.isAgent = true
+            this.$apply()
+          } else {
+            Tips.success(res.message)
+          }
+        })
+      }
+    };
+
+    events = {};
+
+    watch = {};
+
+    computed = {};
+
+    onLoad () { };
+
+    onShow () { };
+    onUnload () {
+      // agentApi.getInfo().then(res => {
+      //   if (res.code === 2020) {  // 非代理
+      //     wepy.navigateTo({ url: '/pages/login' })
+      //     this.$parent.globalData.isAgent = false
+      //   } else {
+      //     this.$parent.globalData.isAgent = true
+      //   }
+      // })
+    }
+  }
+</script>

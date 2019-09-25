@@ -1,0 +1,373 @@
+<style lang='less'>
+page{
+    padding-bottom: 140rpx;
+}
+.line {
+	height: 12rpx;
+	width: 750rpx;
+	background-color: #f2f2f2;
+}
+.card_box{
+  display: flex;
+  align-items: center;
+  height:90rpx;
+  background: #f6f6f6;
+  font-size: 28rpx;
+  padding: 0 30rpx;
+  color: #313131;
+  justify-content: space-between;
+  margin-bottom: 10rpx;
+  .copy{
+    background: #84C257;
+    color: #fff;
+    display: inline-block;
+    padding:8rpx 15rpx;
+    border-radius:10rpx;
+  }
+}
+.scroller-tab {
+    width: 100%;
+    height: 91rpx;
+    white-space: nowrap;
+    // border-bottom: 12rpx solid rgba(242,242,242,1);
+    .scroller-item {
+        width: 20%;
+        padding: 0 36rpx;
+        text-align: center;
+        display: inline-block; 
+        font-size: 28rpx;
+        line-height: 91rpx;
+        font-family: PingFangSC;
+        font-weight: 400;
+        color: #999999;
+        position: relative;
+
+        .item-bottom {
+            position: absolute;
+            left: 50%;
+            bottom: 1rpx;
+            transform: translate(-50%, 0);
+            width: 70rpx;
+            height: 2rpx;
+            background-color: #568512;
+            display: none;
+        }
+    }
+    .scroller-item.active {
+        color: #568512;
+        .item-bottom {
+            display: block;  
+        }
+    }
+}
+.order_item {
+    padding: 28rpx 26rpx;
+    border-bottom: 12rpx solid rgba(242,242,242,1);
+    .item_header {
+        font-size:28rpx;
+        font-family:PingFangSC;
+        font-weight:400;
+        margin-bottom: 32rpx;
+        padding-bottom: 26rpx;
+        border-bottom: 1rpx solid #F2F2F2;
+        .date {
+            color:rgba(49,49,49,1);
+        }
+        .status {
+            color:rgba(204,0,0,1);
+        }
+    }
+    .order_product_list {
+        border-bottom: 1px solid rgba(242,242,242,1);
+        padding-bottom: 28rpx;
+        image {
+            width: 140rpx;
+            height: 104rpx;
+            margin-right: 29rpx;
+        }
+        .product_type {
+            text-align: right;
+            padding-top: 18rpx;
+            .price {
+                font-size:24rpx;
+                font-weight:400;
+                color:rgba(49,49,49,1);
+                margin-bottom: 37rpx;
+            }
+            .count {
+                font-size:24rpx;
+                font-weight:400;
+                color:rgba(153,153,153,1);
+            }
+        }
+        .name {
+            font-size:28rpx;
+            font-weight:400;
+            color:rgba(49,49,49,1);
+            width: 361rpx;
+            margin-bottom: 23rpx;
+        }
+        .type {
+            font-size:24rpx;
+            font-weight:400;
+            color:rgba(153,153,153,1);
+        }
+    }
+    .item_footer {
+        padding-right: 25rpx;
+        margin-top: 29rpx;
+        font-size:24rpx;
+        font-family:PingFangSC;
+        font-weight:400;
+        color:rgba(34,34,34,1);
+        width: 100%;
+        .footer_count {
+            margin-right: 18rpx;
+        }
+        text {
+            font-size:28rpx;
+            font-family:PingFangSC-Medium;
+            font-weight:500;
+            color:rgba(34,34,34,1);
+        }
+    }
+    .pay_btn_box{
+      border-top:1px solid #f2f2f2;
+      justify-content: flex-end;
+      padding: 10rpx 0;
+      margin: 15rpx 0 -25rpx 0;
+    }
+    .pay_btn{
+      width:  170rpx;
+      height: 55rpx;
+      background: rgba(255,65,63,1);
+      color: #fff;
+      line-height: 55rpx;
+      text-align: center;
+      border-radius: 27rpx;
+      font-size: 28rpx;
+    }
+}
+.empty_list {
+    width: 292rpx;
+    height: 100%;
+    margin: 0 auto;
+    padding: 216rpx 0 499rpx 0;
+    font-size:28rpx;
+    font-family:PingFangSC;
+    font-weight:400;
+    color:rgba(34,34,34,1);
+    text-align: center;
+    image {
+        width: 100%;
+        height: 183rpx;
+        margin-bottom: 52rpx;
+    }
+}
+</style>
+<!--  -->
+<template>
+    <view class='container'>
+        <scroll-view class="scroller-tab" scroll-x>
+            <repeat for="{{typeList}}" key="index" index="index" item="item">
+                <view class="scroller-item {{crrTypeId == item.typeId ? 'active' : ''}}" @tap="changeActive({{item.typeId}}, {{ item.typeName }})">
+                    {{item.typeName}}<view class="item-bottom"></view>
+                </view>
+            </repeat>
+        </scroll-view>
+        <view class="line"></view>
+        <view wx:if='{{loaded}}'>
+          <view class="order_list" wx:if="{{ listAll.length>0 }}">
+              <view class="card_box" wx:if="{{crrTypeId == 1}}">  
+                <view>
+                  <view>请转账至卡号 : 6214633131060330601</view>
+                  <view style="text-indent:7em;">(户名：廖靖军)</view>
+                </view>
+                <text class="copy" @tap="copy" data-copy_text="6214633131060330601">复制</text>
+              </view>
+
+              <repeat for="{{listAll}}" key="index" index="index" item="item">
+                  <view class="order_item" @tap="toOrderDetail({{item.id}})">
+                      <view class="item_header flex flex-j-c-sb">
+                          <view class="date">订单号： {{ item.orderSn }}</view>
+                          <view class="status">{{ item.orderstatusDO.name }}</view>
+                      </view>
+                      <view class="order_product_list flex flex-j-c-sb">
+                          <view class="product_info flex">
+                              <image src="{{ item.orderGoodsDOList[0].picUrl }}" mode="aspectFill"></image>
+                              <view class="">
+                                  <view class="name ellipsis2">{{ item.orderGoodsDOList[0].goodsName }}</view>
+                                  <view class="type ellipsis2" wx:if="{{ item.orderGoodsDOList[0].specifications }}">{{ item.orderGoodsDOList[0].specifications }}</view>
+                              </view>
+                          </view>
+                          <view class="product_type">
+                              <view class="price">￥{{ item.orderGoodsDOList[0].price }}</view>
+                              <view class="count">x{{ item.orderGoodsDOList[0].number }}</view>
+                          </view>
+                      </view>
+                      <view class="item_footer flex flex-j-c-sb flex-a-i-baseline">
+                          <view class="time-left">{{item.createTime}}</view>
+                          <view class="flex flex-a-i-center">
+                              <view class="footer_count">共{{ item.orderGoodsDOList[0].number }}件</view>
+                              <view>总计：<text>￥{{ item.goodsPrice }}</text></view>
+                          </view>
+                      </view>
+                      <view class="flex flex-j-c-sb flex-a-i-baseline pay_btn_box" wx:if="{{crrTypeId ==6 || item.orderstatusDO.name =='未付款'}}">
+                        <view class="pay_btn" @tap.stop="pay({{item.id}})">立即支付</view>
+                      </view>
+                  </view>
+              </repeat>
+          </view>
+          <view class="empty_list" wx:else>
+              <image src="/assets/images/order/my-order_01.png" mode="aspectFit">
+              </image>
+              <view>还没有相关的订单哦</view>
+          </view>
+          <!-- 加载更多 -->
+          <show-more :moreType.sync='moreType'></show-more>
+        </view>
+         
+        <!-- <footer :containerHeight.sync="containerHeight" /> -->
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import showMore from '@/components/showMore'
+    import order from '@/apiJs/order.js'
+    import Tips from '@/utils/tips.js'
+    export default class OrderCenter extends wepy.page {
+      config = {
+        navigationBarTitleText: '订单中心',
+        enablePullDownRefresh: true
+      };
+
+      data = {
+        typeList: [
+            {typeName: '未付款', typeId: 6},
+            {typeName: '待审核', typeId: 1},
+            {typeName: '待发货', typeId: 2},
+            {typeName: '已发货', typeId: 3},
+            {typeName: '全部', typeId: 5}
+        ],
+        listAll: [],
+        crrTypeId: 5,
+        containerHeight: 0,
+        isEmpty: false,
+        offset: 0,
+        limit: 10,
+        moreType: '',
+        switch: true,
+        loaded: false
+      };
+
+      components = {
+        'show-more': showMore
+      };
+
+      onPullDownRefresh () {
+        this.onShow()
+        wepy.stopPullDownRefresh()
+  }
+
+      methods = {
+        changeActive (id, type) {
+          if (this.crrTypeId === id) {
+            return false
+          }
+          this.crrTypeId = id
+          this.type = type
+          this.offset = 0
+          Tips.loading()
+          this.loaded = false
+          this.getList()
+        },
+        toOrderDetail (orderId) {
+          wepy.navigateTo({ url: '/pages/order_package/orderDetail?orderId=' + orderId })
+        },
+        // 复制号码
+        copy (e) {
+          let copyText = e.currentTarget.dataset.copy_text
+          wepy.setClipboardData({
+            data: copyText + ''
+          })
+        },
+        // 支付
+        pay (orderId) {
+          Tips.loading('支付跳转中...')
+          let that = this
+          order.unifiedOrder({id: orderId}).then(data => {
+            if (data.code === 0) {
+              console.log(data.data.timestamp)
+              wx.requestPayment({
+                'timeStamp': (data.data.timestamp).toString(),
+                'nonceStr': data.data.nonce,
+                'package': data.data.pack,
+                'signType': 'MD5',
+                'paySign': data.data.signature,
+                success (res) {
+                  Tips.success('支付成功').then(() => {
+                    wepy.navigateTo({ url: '/pages/order_package/orderCenter?id=2'})
+                  })
+                },
+                fail (res) {
+                  Tips.success('您已取消支付')
+                }
+              })
+              Tips.loaded()
+            }
+          })
+        }
+      };
+
+      computed = {};
+
+      async onLoad (options) {
+        Tips.loading()
+        this.crrTypeId = options.id
+        this.getList()
+      }
+      async onShow () {
+      }
+      onUnload () {
+        wepy.reLaunch({ url: '/pages/proxyCenter' })
+      }
+      onReachBottom () {
+        if (this.switch) {
+          this.getList()
+        }
+      }
+      getList () {
+        this.switch = false
+        let param = {
+          offset: this.offset,
+          limit: this.limit,
+          type: this.crrTypeId
+        }
+        order.orderList(param).then(res => {
+          if ((res.data.length > 0 && res.data.length < 10) || (res.data.length === 0 && this.offset > 0)) {  // 已无数据
+            this.moreType = 2
+            this.switch = false
+          } else {
+            this.moreType = 1
+            this.switch = true
+          }
+          if (this.offset === 0) {
+            this.listAll = res.data
+            if (res.data.length === 0) {
+              this.moreType = ''
+              this.switch = false
+            }
+          } else {
+            if (res.data.length > 0) {
+              this.listAll = this.listAll.concat(res.data)
+            }
+          }
+          this.offset += 10
+          this.loaded = true
+          this.$apply()
+          Tips.loaded()
+        })
+      }
+  }
+</script>

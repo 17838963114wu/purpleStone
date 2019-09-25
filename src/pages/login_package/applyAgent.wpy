@@ -1,0 +1,230 @@
+<style lang='less'>
+.container {
+	background: #fff;
+	padding: 88rpx 40rpx 68rpx 40rpx;
+	.logo {
+		width: 239rpx;
+		height: 91rpx;
+		margin: 0 auto;
+		margin-bottom: 106rpx;
+		image {
+			width: 100%;
+			height: 91rpx;
+		}
+	}
+	.login_form {
+		form {
+			label {
+				display: flex;
+				border-bottom:1rpx solid #F4F4F4;
+				font-size:32rpx;
+				font-weight:400;
+				padding: 25rpx 0;
+        margin-bottom: 48rpx;
+        position: relative;
+				&:last-of-type {
+          margin-bottom: none;
+          input{
+            width: 300rpx;
+          }
+          }
+        }
+        .get-code{
+            color: #568512;
+            font-size: 28rpx;
+            position: absolute;
+            right: 0;
+            padding: 40rpx;
+        }
+			image{
+        width: 34rpx;
+        height: 34rpx;
+				margin-right: 27rpx;
+			}
+			
+      .agreed-box{
+          color: #666666;
+          font-size: 26rpx;
+          image{
+              margin-right: 0;
+          }
+          text{
+              padding-left: 17rpx;
+          }
+      }
+			button {
+				width:670rpx;
+				height:82rpx;
+				margin: 0 auto;
+				margin-top: 70rpx;
+				background:#84C257;
+				border-radius:41rpx;
+				text-align: center;
+				line-height: 82rpx;
+				font-size:30rpx;
+				font-weight:400;
+				color:rgba(255,255,255,1);
+			}
+			.proxy {
+				font-size:26rpx;
+				color:#666666;
+			}
+		}
+	}
+}
+</style>
+<!--  -->
+<template>
+  <view class='container'>
+      <view class="logo">
+          <image src="/assets/images/proxyCenter/my_logo.png"></image>
+      </view>
+      <view class="login_form">
+          <form @submit="submit" report-submit="true">
+              <label class="flex flex-a-i-center">
+                <image src="/assets/images/login/icon_name_login.png"></image>
+                        <input name="name" type="text" placeholder="请输入真实姓名" placeholder-class="placeholder"
+                            maxlength="20" />
+                    </label>
+                    <label class="flex flex-a-i-center">
+                <image src="/assets/images/login/icon_zh.png"></image>
+                        <input name="mobile" type="number"  placeholder="请输入手机号码" placeholder-class="placeholder"
+                            maxlength="11" @input="changeMobile"/>
+                    </label>
+                    <label class="flex flex-a-i-center">
+                <image src="/assets/images/login/icon_yzm_login.png"></image>
+                        <input name="sign" type="number" placeholder="请输入验证码" placeholder-class="placeholder"
+                            maxlength="6" />
+
+                          <view class="get-code" wx:if="{{isVerify}}" @tap="getCode">获取验证码</view>
+                          <view class="get-code" wx:else>重新发送({{timeNumber}}秒)</view>
+                    </label>
+                    <view class="agreed-box flex flex-a-i-center">
+                        <image src="{{isAgreed?'/assets/images/shoppingCar/circle_click.png':'/assets/images/login/login_register_rd_n.png'}}" @tap="agreed"></image>
+                        <text @tap="agreed">我已阅读并同意</text>
+                        <navigator url="/pages/login_package/agreement" hover-class='none'>《代理协议》</navigator>
+                    </view>
+              <button formType="submit">提交申请</button>
+          </form>
+      </view>
+      <modal :success.sync="success" :applyResult.sync="applyResult"/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import login from '@/apiJs/login.js'
+  import Tips from '@/utils/tips.js'
+  import CartModal from '@/components/cartModal'
+export default class applyAgent extends wepy.page {
+    config = {
+      navigationBarTitleText: '申请代理'
+    };
+
+    data = {
+      isAgreed: false,
+      show: false,
+      timmer: null,
+      timeNumber: 60,
+      isVerify: true,
+      phone: '',
+      sign: '',
+      success: '',
+      applyResult: ''
+    };
+
+    components = {
+      'modal': CartModal
+    };
+
+    methods = {
+      agreed () {
+        this.isAgreed = !this.isAgreed
+      },
+      submit (e) {
+        const params = e.detail.value
+        params.formId = e.detail.formId
+        if (!params.name) {
+          Tips.success('请输入真实姓名')
+          return false
+        }
+        if (!params.mobile) {
+          Tips.success('请输入手机号码')
+          return false
+        }
+        if (!params.sign) {
+          Tips.success('请输入验证码')
+          return false
+        }
+        if (params.sign !== this.sign) {
+          Tips.success('请输入正取的验证码')
+          return false
+        }
+        if (!this.isAgreed) {
+          Tips.success('您还没同意代理协议')
+          return false
+        }
+        login.applyAgent(params).then(res => {
+          if (res.data === 'OK') {
+            this.success = 1
+            this.getStatus()
+          } else {
+            Tips.success(res.message)
+          }
+        })
+      },
+      // 点击获取验证码
+      getCode () {
+        // 填了手机号码
+        var reg = /^[1][2,3,4,5,6,7,8,9][0-9]{9}$/
+        if (!reg.test(this.phone)) {
+          Tips.success('请输入正确的手机号码')
+          return false
+        }
+        this.isVerify = false
+        login.captchaCode({phone: this.phone}).then(res => {
+          if (res.code === 0) {
+            this.sign = res.data
+          }
+          this.timmer = setInterval(() => {
+            this.timeNumber--
+            if (this.timeNumber === 0) {
+              this.isVerify = true
+              this.timeNumber = 60
+              clearInterval(this.timmer)
+            }
+            this.$apply()
+          }, 1000)
+        })
+      },
+      // 输入手机号码
+      changeMobile (e) {
+        this.phone = e.detail.value
+      }
+    };
+
+    events = {};
+
+    watch = {};
+
+    computed = {};
+
+    onLoad () {
+      this.getStatus()
+    };
+
+    onShow () { };
+    // 申请代理状态
+    getStatus () {
+      login.status().then(res => {
+        if (res.code === 201) {
+          this.success = 2
+        } else if (res.code === 203) {
+          this.success = 3
+          this.applyResult = res.message
+        }
+        this.$apply()
+      })
+    }
+  }
+</script>
